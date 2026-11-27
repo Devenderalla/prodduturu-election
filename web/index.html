@@ -1,0 +1,434 @@
+<title>Prodduturu Election Analytics</title>
+<style>
+/* =========================================================
+   Prodduturu Election Analytics - mobile-first stylesheet
+   ========================================================= */
+
+:root{
+  color-scheme: light;
+  --bg:#f3f5f9;
+  --bg-elev:#ffffff;
+  --bg-sunken:#e9edf4;
+  --ink:#131a26;
+  --ink-2:#4a5565;
+  --ink-3:#737f90;
+  --line:#dde3ec;
+  --line-strong:#c6cfdc;
+  --brand:#1d4ed8;
+  --brand-ink:#ffffff;
+  --brand-soft:#e5ecff;
+  --accent:#0d7a5f;
+  --accent-soft:#dcf2ea;
+  --warn:#9a5a00;
+  --warn-soft:#fdf0d8;
+  --danger:#b11f2b;
+  --danger-soft:#fde6e8;
+  --c1:#1d4ed8; --c2:#0d7a5f; --c3:#b2630a; --c4:#7a3bb8; --c5:#5b6475;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 1px 2px rgba(15,23,42,.06), 0 6px 18px rgba(15,23,42,.06);
+  --appbar-h:92px;
+  --nav-h:60px;
+  --font: "Noto Sans", "Noto Sans Telugu", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+html[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0c1118;
+  --bg-elev:#151c26;
+  --bg-sunken:#1d2533;
+  --ink:#eef2f8;
+  --ink-2:#a8b3c3;
+  --ink-3:#7c8798;
+  --line:#242e3d;
+  --line-strong:#334052;
+  --brand:#5b8cff;
+  --brand-ink:#08112a;
+  --brand-soft:#1b2746;
+  --accent:#34c79b;
+  --accent-soft:#11302a;
+  --warn:#e2a93b;
+  --warn-soft:#332713;
+  --danger:#ff6b76;
+  --danger-soft:#3a1a1f;
+  --c1:#5b8cff; --c2:#34c79b; --c3:#e2a93b; --c4:#b98cf0; --c5:#8b95a7;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font);
+  font-size:15px;
+  line-height:1.45;
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+}
+html[lang="te"] body{ font-size:15.5px; line-height:1.6; }
+
+h1,h2,h3,h4{ margin:0; font-weight:650; letter-spacing:-.01em; }
+p{ margin:0; }
+button{ font-family:inherit; }
+[hidden]{ display:none !important; }
+
+/* ---------------- App bar ---------------- */
+.appbar{
+  position:sticky; top:0; z-index:40;
+  background:var(--bg-elev);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px 8px;
+  padding-top:calc(10px + env(safe-area-inset-top));
+}
+.appbar-main{ display:flex; align-items:flex-start; gap:8px; }
+.appbar-title{ min-width:0; flex:1; }
+.appbar-title h1{ font-size:19px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.appbar-sub{ font-size:11.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.appbar-actions{ display:flex; gap:6px; flex:0 0 auto; }
+
+.icon-btn{
+  width:38px; height:38px; min-width:38px;
+  display:grid; place-items:center;
+  border:1px solid var(--line); border-radius:12px;
+  background:var(--bg-sunken); color:var(--ink-2);
+  font-size:14px; font-weight:650; cursor:pointer;
+}
+.icon-btn svg{ width:20px; height:20px; fill:currentColor; }
+.icon-btn:active{ transform:scale(.95); }
+
+.mode-strip{ display:flex; gap:6px; margin-top:8px; overflow:hidden; }
+.chip{
+  font-size:10.5px; font-weight:600; letter-spacing:.02em;
+  padding:3px 8px; border-radius:999px;
+  background:var(--brand-soft); color:var(--brand);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.chip-muted{ background:var(--bg-sunken); color:var(--ink-3); font-weight:500; }
+/* mode + storage keep their full label; only the timestamp chip gives way */
+.chip-mode, .chip-admin{ flex:0 0 auto; }
+#storageChip{ flex:0 0 auto; }
+#updatedChip{ flex:0 1 auto; min-width:0; }
+.chip-admin{ background:var(--accent-soft); color:var(--accent); }
+
+/* ---------------- Screen / layout ---------------- */
+.screen-root{
+  padding:14px 14px calc(var(--nav-h) + 26px + env(safe-area-inset-bottom));
+  max-width:620px; margin:0 auto;
+  outline:none;
+}
+/* minmax(0,1fr) + min-width:0 stop a wide nowrap table cell from forcing
+   the whole grid track - and every card with it - past the viewport. */
+.stack{ display:grid; gap:12px; grid-template-columns:minmax(0,1fr); }
+.stack > *{ min-width:0; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; }
+.grid-2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+@media (max-width:340px){ .grid-3{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+/* ---------------- Cards ---------------- */
+.card{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+.card-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+.card-head h2{ font-size:15px; }
+.card-head .hint{ font-size:11px; color:var(--ink-3); }
+.card-sub{ font-size:12px; color:var(--ink-3); margin-top:2px; }
+
+.stat{ background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:var(--shadow); }
+.stat-label{ font-size:11.5px; color:var(--ink-3); font-weight:600; text-transform:none; line-height:1.3; }
+.stat-value{ font-size:24px; font-weight:700; letter-spacing:-.02em; margin-top:4px; font-variant-numeric:tabular-nums; }
+.stat-value.sm{ font-size:19px; }
+.stat-foot{ font-size:11px; color:var(--ink-3); margin-top:3px; }
+.stat.tone-brand .stat-value{ color:var(--brand); }
+.stat.tone-accent .stat-value{ color:var(--accent); }
+.stat.tone-warn .stat-value{ color:var(--warn); }
+.stat.tone-danger .stat-value{ color:var(--danger); }
+
+/* ---------------- Progress ---------------- */
+.progress{ background:var(--bg-sunken); border-radius:999px; height:10px; overflow:hidden; }
+.progress > span{ display:block; height:100%; border-radius:999px; background:var(--brand); transition:width .35s ease; }
+.progress.accent > span{ background:var(--accent); }
+.progress.warn > span{ background:var(--warn); }
+.progress-row{ display:flex; justify-content:space-between; font-size:12px; color:var(--ink-2); margin-bottom:5px; }
+.progress-row b{ font-variant-numeric:tabular-nums; }
+
+/* ---------------- Buttons ---------------- */
+.btn{
+  min-height:46px; padding:0 16px;
+  border-radius:12px; border:1px solid transparent;
+  font-size:14.5px; font-weight:650; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--bg-sunken); color:var(--ink);
+}
+.btn:active{ transform:translateY(1px); }
+.btn-primary{ background:var(--brand); color:var(--brand-ink); }
+.btn-accent{ background:var(--accent); color:#fff; }
+.btn-danger{ background:var(--danger); color:#fff; }
+.btn-ghost{ background:transparent; border-color:var(--line-strong); color:var(--ink-2); }
+.btn-block{ width:100%; }
+.btn-sm{ min-height:36px; padding:0 12px; font-size:13px; border-radius:10px; }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+
+/* ---------------- Forms ---------------- */
+.field{ display:grid; gap:5px; }
+.field > label{ font-size:12.5px; font-weight:600; color:var(--ink-2); }
+.field .help{ font-size:11px; color:var(--ink-3); }
+input,select,textarea{
+  font-family:inherit; font-size:16px; /* 16px avoids iOS zoom-on-focus */
+  width:100%; min-height:46px; padding:10px 12px;
+  background:var(--bg); color:var(--ink);
+  border:1px solid var(--line-strong); border-radius:12px;
+}
+textarea{ min-height:76px; resize:vertical; }
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{
+  outline:3px solid color-mix(in srgb, var(--brand) 45%, transparent); outline-offset:1px;
+}
+input[type="number"]{ font-variant-numeric:tabular-nums; }
+
+/* Range sliders: native inputs ignore the shared border/box model, which
+   pushed them 2px past their card. Styled explicitly, thumb sized for touch. */
+input[type="range"]{
+  -webkit-appearance:none; appearance:none;
+  width:100%; max-width:100%; min-height:34px;
+  padding:0; border:0; margin:0;   /* Chrome defaults range inputs to margin:2px */
+  background:transparent; cursor:pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:6px; border-radius:999px; background:var(--bg-sunken); border:1px solid var(--line);
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:24px; height:24px; margin-top:-10px; border-radius:50%;
+  background:var(--brand); border:3px solid var(--bg-elev);
+  box-shadow:0 1px 4px rgba(15,23,42,.3);
+}
+input[type="range"]::-moz-range-track{
+  height:6px; border-radius:999px; background:var(--bg-sunken); border:1px solid var(--line);
+}
+input[type="range"]::-moz-range-thumb{
+  width:22px; height:22px; border-radius:50%;
+  background:var(--brand); border:3px solid var(--bg-elev);
+}
+.search-wrap{ position:relative; }
+.search-wrap input{ min-height:56px; font-size:17px; padding-left:44px; border-radius:14px; }
+.search-wrap svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:20px; height:20px; fill:var(--ink-3); }
+.inline-err{ font-size:11.5px; color:var(--danger); font-weight:600; }
+
+/* ---------------- Tables / lists ---------------- */
+.table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -4px; padding:0 4px; }
+table{ width:100%; border-collapse:collapse; font-size:13px; min-width:min(100%, 420px); }
+th,td{ text-align:right; padding:8px 6px; border-bottom:1px solid var(--line); white-space:nowrap; }
+th:first-child,td:first-child{ text-align:left; white-space:normal; }
+td.wrap{ white-space:normal; }
+th{ font-size:11px; color:var(--ink-3); font-weight:650; }
+td b{ font-variant-numeric:tabular-nums; }
+tr:last-child td{ border-bottom:0; }
+
+.list{ display:grid; gap:8px; }
+.list-item{
+  background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-sm);
+  padding:10px 12px; display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+}
+.list-item .li-main{ min-width:0; }
+.li-title{ font-weight:650; font-size:14px; }
+.li-meta{ font-size:11.5px; color:var(--ink-3); margin-top:2px; }
+.li-amount{ font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+.empty{
+  text-align:center; padding:26px 16px; color:var(--ink-3);
+  border:1px dashed var(--line-strong); border-radius:var(--radius); background:var(--bg);
+}
+.empty svg{ width:34px; height:34px; fill:var(--ink-3); opacity:.6; margin-bottom:8px; }
+.empty b{ display:block; color:var(--ink-2); font-size:14px; margin-bottom:3px; }
+.empty span{ font-size:12.5px; }
+
+/* ---------------- Notices ---------------- */
+.notice{
+  border-radius:var(--radius-sm); padding:10px 12px; font-size:12.5px;
+  border:1px solid transparent; display:flex; gap:8px; align-items:flex-start;
+}
+.notice b{ font-weight:700; }
+.notice-info{ background:var(--brand-soft); color:var(--brand); border-color:transparent; }
+.notice-warn{ background:var(--warn-soft); color:var(--warn); }
+.notice-danger{ background:var(--danger-soft); color:var(--danger); }
+.notice-accent{ background:var(--accent-soft); color:var(--accent); }
+
+.badge{ font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px; background:var(--bg-sunken); color:var(--ink-3); white-space:nowrap; }
+.badge-demo{ background:var(--warn-soft); color:var(--warn); }
+.badge-hypo{ background:var(--brand-soft); color:var(--brand); }
+.badge-official{ background:var(--accent-soft); color:var(--accent); }
+.badge-future{ background:var(--bg-sunken); color:var(--ink-3); }
+
+/* ---------------- Tabs / segmented ---------------- */
+.seg{ display:flex; gap:4px; background:var(--bg-sunken); padding:4px; border-radius:12px; }
+.seg button{
+  flex:1; min-height:38px; border:0; border-radius:9px; background:transparent;
+  color:var(--ink-2); font-size:13px; font-weight:650; cursor:pointer;
+}
+.seg button.is-active{ background:var(--bg-elev); color:var(--ink); box-shadow:var(--shadow); }
+
+/* ---------------- Charts ---------------- */
+.chart{ width:100%; display:block; }
+.chart-wrap{ width:100%; overflow:hidden; }
+.legend{ display:grid; gap:6px; margin-top:10px; }
+.legend-item{ display:flex; align-items:center; gap:8px; font-size:12.5px; }
+.legend-dot{ width:10px; height:10px; border-radius:3px; flex:0 0 auto; }
+.legend-item .lg-name{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.legend-item .lg-val{ font-variant-numeric:tabular-nums; font-weight:650; }
+.donut-center-v{ font-size:20px; font-weight:700; fill:var(--ink); }
+.donut-center-l{ font-size:9px; fill:var(--ink-3); }
+.axis-text{ font-size:9px; fill:var(--ink-3); }
+.grid-line{ stroke:var(--line); stroke-width:1; }
+
+/* ---------------- Bottom nav ---------------- */
+.bottom-nav{
+  position:fixed; left:0; right:0; bottom:0; z-index:45;
+  display:grid; grid-template-columns:repeat(7,minmax(0,1fr));
+  background:var(--bg-elev); border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item{
+  border:0; background:transparent; cursor:pointer;
+  display:grid; justify-items:center; gap:2px;
+  padding:7px 1px 6px; min-height:var(--nav-h);
+  color:var(--ink-3); min-width:0;
+}
+.nav-item svg{ width:19px; height:19px; fill:currentColor; }
+.nav-item span{ font-size:9.5px; font-weight:600; line-height:1.1; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+html[lang="te"] .nav-item span{ font-size:8.5px; }
+.nav-item.is-active{ color:var(--brand); }
+.nav-item.is-active svg{ transform:translateY(-1px); }
+
+/* ---------------- Toasts ---------------- */
+.toast-stack{
+  position:fixed; z-index:60; left:12px; right:12px;
+  bottom:calc(var(--nav-h) + 14px + env(safe-area-inset-bottom));
+  display:grid; gap:8px; pointer-events:none;
+}
+.toast{
+  background:var(--ink); color:var(--bg-elev);
+  border-radius:12px; padding:11px 13px; font-size:13px; font-weight:600;
+  box-shadow:var(--shadow); animation:toast-in .18s ease;
+}
+.toast.is-ok{ background:var(--accent); color:#fff; }
+.toast.is-err{ background:var(--danger); color:#fff; }
+@keyframes toast-in{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+
+/* ---------------- Modal ---------------- */
+.modal-backdrop{
+  position:fixed; inset:0; z-index:70;
+  background:rgba(8,12,20,.55);
+  display:grid; place-items:end center; padding:0;
+}
+.modal{
+  background:var(--bg-elev); width:100%; max-width:620px;
+  border-radius:20px 20px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  animation:sheet-in .2s ease; max-height:88vh; overflow-y:auto;
+}
+@keyframes sheet-in{ from{ transform:translateY(16px); opacity:.6; } to{ transform:none; opacity:1; } }
+.modal h2{ font-size:16.5px; margin-bottom:10px; }
+.modal-actions{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+.modal .stack{ gap:12px; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+
+</style>
+<!-- ===================== APP SHELL ===================== -->
+<header class="appbar" id="appbar">
+  <div class="appbar-main">
+    <div class="appbar-title">
+      <h1 id="screenTitle" data-i18n="nav.dashboard">Dashboard</h1>
+      <p class="appbar-sub"><span data-i18n="app.place">Prodduturu &middot; Kankipadu &middot; Andhra Pradesh</span></p>
+    </div>
+    <div class="appbar-actions">
+      <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Language">
+        <span id="langBtnLabel">తె</span>
+      </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch theme" title="Theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+      <button class="icon-btn" id="modeBtn" type="button" aria-label="Switch mode" title="Mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-7 2-7 4.5V21h14v-2.5C19 16 16 14 12 14z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mode-strip" id="modeStrip">
+    <span class="chip chip-mode" id="modeChip" data-i18n="mode.volunteer">Volunteer mode</span>
+    <span class="chip chip-muted" id="storageChip">local</span>
+    <span class="chip chip-muted" id="updatedChip">&mdash;</span>
+  </div>
+</header>
+
+<main id="screenRoot" class="screen-root" tabindex="-1">
+  <!-- views render here -->
+</main>
+
+<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
+  <button class="nav-item is-active" data-route="dashboard" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+    <span data-i18n="nav.short.dashboard">Home</span>
+  </button>
+  <button class="nav-item" data-route="search" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 1-4.9 14.3l-3 3-1.4-1.4 3-3A8 8 0 0 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+    <span data-i18n="nav.short.search">Search</span>
+  </button>
+  <button class="nav-item" data-route="turnout" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h3V9H4zm6.5 0h3V4h-3zM17 20h3v-8h-3z"/></svg>
+    <span data-i18n="nav.short.turnout">Turnout</span>
+  </button>
+  <button class="nav-item" data-route="analytics" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.5 9 11l4 4 5.5-6.5L20 10l-7 8-4-4-4.6 5z"/></svg>
+    <span data-i18n="nav.short.analytics">Stats</span>
+  </button>
+  <button class="nav-item" data-route="results" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v4a5 5 0 0 1-4 4.9V15h3v2H6v-2h3v-3.1A5 5 0 0 1 5 7zm2 2v2a3 3 0 0 0 10 0V5zM5 19h14v2H5z"/></svg>
+    <span data-i18n="nav.short.results">Results</span>
+  </button>
+  <button class="nav-item" data-route="expenses" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zm2 2v8h14V8zm2 2h4v4H7z"/></svg>
+    <span data-i18n="nav.short.expenses">Expense</span>
+  </button>
+  <button class="nav-item" data-route="settings" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4-2-.6-.6-1.5 1-1.8-1.9-1.9-1.8 1-1.5-.6L13.6 4h-2.7l-.6 2-1.5.6-1.8-1L5.1 7.6l1 1.8-.6 1.5L3.5 12v2.7l2 .6.6 1.5-1 1.8 1.9 1.9 1.8-1 1.5.6.6 2h2.7l.6-2 1.5-.6 1.8 1 1.9-1.9-1-1.8.6-1.5 2-.6z"/></svg>
+    <span data-i18n="nav.short.settings">Settings</span>
+  </button>
+</nav>
+
+<!-- ===================== TOASTS ===================== -->
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ===================== MODAL ===================== -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">&nbsp;</h2>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel" type="button" data-i18n="common.cancel">Cancel</button>
+      <button class="btn btn-primary" id="modalOk" type="button" data-i18n="common.confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/db.js"></script>
+<script src="js/state.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/data/demo-voters.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/search.js"></script>
+<script src="js/views/turnout.js"></script>
+<script src="js/views/analytics.js"></script>
+<script src="js/views/results.js"></script>
+<script src="js/views/expenses.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/app.js"></script>

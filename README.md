@@ -49,6 +49,21 @@ Bump `CACHE` in `sw.js` (`prodduturu-election-v1.0.1` → `v1.0.2`), or in DevTo
 
 ---
 
+### Option C — hosted link (open from any network)
+
+`web/index.html` is a single-page build for hosts that supply their own document
+shell. Regenerate it after any edit to `index.html` or `css/styles.css`:
+
+```bash
+python3 build-web.py
+```
+
+It inlines the stylesheet and keeps the JS files at their existing paths, so the same
+`js/` tree is published alongside it. The hosted build has **no service worker**, so it
+needs a connection; the local copy (Options A/B) is the offline-capable one.
+
+---
+
 ## 3. Modules
 
 Bottom navigation, seven modules:
