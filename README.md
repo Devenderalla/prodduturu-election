@@ -189,9 +189,27 @@ Put the two draft-roll PDFs in this folder and run:
 python3 extract_roll.py --out roll.json
 ```
 
-The PDFs are image-only scans, so this OCRs all 83 pages — expect a few minutes. The script
-reports, per part, how many records it found and **which serial numbers are missing**, so you
-can see at a glance whether the OCR was clean. Expected: 1,096 for part 235 and 1,018 for 236.
+The PDFs are image-only scans, so this OCRs all 83 pages — expect roughly 10 minutes. The
+script reports, per page, how many records it found and **which serial numbers are missing**,
+so you can see at a glance whether a page read cleanly. Expected totals: 1,096 for part 235
+and 1,018 for part 236.
+
+How it gets the numbering right (this took some doing):
+
+- Each record box is located by its **EPIC code**, an unmistakable pattern. A fixed row grid
+  does not work — rows grow taller whenever a name wraps to a second line, and the grid
+  silently drifts out of alignment a third of the way down the page.
+- **Serial numbers are never trusted from a single reading.** The roll numbers row-major
+  across three columns, so column *c*'s *i*-th box holds `base + 3i + c`. Every serial OCR
+  managed to read is a vote for the page's base number, and the majority wins. That repairs
+  misreads rather than trusting them — early versions produced serials like `4` and `1212`
+  by reading a house number or an age instead.
+- A box whose EPIC went undetected is **recovered from the row pitch**, because otherwise
+  every serial below it in that column would shift by three.
+
+Verified on four sample pages: 30/30 records per page, serial runs exactly 61–90 and 91–120
+with no gaps, 7/7 records matching the scan field-for-field, and every field populated on all
+120 records.
 
 Check a few before trusting it:
 

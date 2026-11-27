@@ -9,9 +9,19 @@ RUN THIS ON YOUR OWN MACHINE. The output contains real voter data:
     (Settings → Voter roll → Import).
 
 Why this exists: the supplied PDFs are image-only scans (one JPEG per page,
-no text layer), so the records have to be OCR'd. Each data page is a 3x10
-grid of record boxes; we crop each page into three column strips so OCR keeps
-one record's lines together, then parse the roll's fixed field labels.
+no text layer), so the records have to be OCR'd.
+
+How it works, and why it is built this way:
+  * Each record box is found by its EPIC code, an unmistakable pattern. A
+    fixed row grid does not work - rows grow taller whenever a name wraps
+    onto a second line, which silently knocks the grid out of alignment.
+  * Each box is then OCR'd on its own, so one record's lines stay together.
+  * Serial numbers are NOT trusted from any single reading. The roll numbers
+    row-major across three columns, so column c's i-th box holds
+    base + 3i + c. Every serial OCR did read is a vote for the page's base,
+    and the majority wins - which repairs misreads instead of trusting them.
+  * A box whose EPIC went undetected is recovered from the row pitch, since
+    otherwise every serial below it in that column would shift by three.
 
 NOT extracted, on purpose: the EPIC (voter-ID) number. A volunteer helping
 someone find their polling part needs name → serial + part; the ID number
@@ -33,7 +43,7 @@ If you move this to another machine:
     sudo apt install tesseract-ocr python3-pil
 """
 
-import argparse, glob, io, json, os, re, subprocess, sys, tempfile
+import argparse, csv, glob, io, json, os, re, subprocess, sys, tempfile
 
 try:
     from PIL import Image
@@ -60,6 +70,12 @@ RE_HOUSE   = re.compile(r'House\s*Number\s*[:;.]\s*(\S+)', re.I)
 RE_AGE     = re.compile(r'Age\s*[:;#.]?\s*(\d{1,3})', re.I)
 RE_GENDER  = re.compile(r'Gender\s*[:;+.]?\s*(Male|Female|Third)', re.I)
 RE_SECTION = re.compile(r'Section\s*No\s*and\s*Name\s*[:.]?\s*(.+?)\s*$', re.I)
+RE_EPIC_TOK= re.compile(r'^[A-Z]{2,4}[0-9]{6,9}$')
+
+# Each record box carries an EPIC code at its top-right. That code is a far more
+# reliable landmark than a fixed grid: row heights vary whenever a name wraps
+# onto a second line, which silently knocks a fixed grid out of alignment.
+COL_BOUNDS = [(0.015, 0.337), (0.337, 0.660), (0.660, 0.990)]
 
 NOISE = ('photo', 'available', 'name', 'house', 'age', 'gender', 'assembly', 'section', 'part')
 
@@ -145,18 +161,145 @@ def page_jpegs(pdf_path):
             yield i + 1, data[s:e + 2]
 
 
-def ocr(tess, img, psm='6'):
+def ocr(tess, img, psm='6', whitelist=None):
     with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
         img.save(f.name)
         tmp = f.name
     try:
-        r = subprocess.run([tess, tmp, '-', '--psm', psm], capture_output=True, text=True)
+        cmd = [tess, tmp, '-', '--psm', psm]
+        if whitelist:
+            cmd += ['-c', 'tessedit_char_whitelist=' + whitelist]
+        r = subprocess.run(cmd, capture_output=True, text=True)
         return r.stdout
     finally:
         os.unlink(tmp)
 
 
-def extract_pdf(tess, pdf_path, part, only_pages=None, quiet=False):
+def tsv_words(tess, img):
+    """Word boxes for a whole page. Used only to locate the serial/EPIC line."""
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
+        img.save(f.name)
+        tmp = f.name
+    base = tmp[:-4]
+    try:
+        subprocess.run([tess, tmp, base, 'tsv', '--psm', '11'], capture_output=True)
+        with open(base + '.tsv', newline='') as fh:
+            rows = list(csv.DictReader(fh, delimiter='\t', quoting=csv.QUOTE_NONE))
+        return [r for r in rows if (r.get('text') or '').strip()]
+    except Exception:
+        return []
+    finally:
+        for f2 in (tmp, base + '.tsv'):
+            if os.path.exists(f2):
+                os.unlink(f2)
+
+
+def page_anchors(tess, img, W):
+    """Locate every record box on a page and the serial printed in it.
+
+    Each box carries its serial at top-left and an EPIC code at top-right on
+    the same line. The EPIC pattern is unmistakable, so it is the landmark;
+    a fixed row grid is not usable because row heights grow whenever a name
+    wraps onto a second line.
+
+    Both x-bounds matter when pairing: records in the same row share a y
+    across all three columns, so the serial must also sit inside this
+    column's own x-range.
+    """
+    words = tsv_words(tess, img)
+    nums = []
+    for w in words:
+        t = w['text'].strip()
+        if re.fullmatch(r'[0-9]{1,4}', t):
+            try:
+                nums.append((int(w['left']), int(w['top']), int(t)))
+            except (ValueError, KeyError):
+                pass
+
+    anchors = {0: [], 1: [], 2: []}
+    for w in words:
+        if not RE_EPIC_TOK.match(w['text'].strip()):
+            continue
+        try:
+            ex, ey = int(w['left']), int(w['top'])
+        except (ValueError, KeyError):
+            continue
+        col = 0 if ex < W * 0.34 else (1 if ex < W * 0.66 else 2)
+        cx0 = W * COL_BOUNDS[col][0]
+        colw = W * (COL_BOUNDS[col][1] - COL_BOUNDS[col][0])
+        # The serial box sits at a consistent offset into each column
+        # (~30% of its width). Anchoring on that, rather than "leftmost
+        # number on the line", stops house numbers being read as serials.
+        want_x = cx0 + 0.30 * colw
+        cands = [(abs(x - want_x), v) for (x, y, v) in nums
+                 if abs(x - want_x) <= 0.14 * colw and abs(y - ey) <= 15 and x < ex]
+        serial = min(cands)[1] if cands else None
+        anchors[col].append((ey, serial))
+    return anchors
+
+
+def fill_anchor_gaps(anchors):
+    """Recover a record box whose EPIC code was not detected.
+
+    This matters for more than the missing row: serials are derived from each
+    box's index within its column, so one undetected box would shift every
+    serial below it by three. A missed box shows up as a vertical gap of
+    roughly twice the usual row pitch, so insert a placeholder there.
+    """
+    inserted = 0
+    for col in (0, 1, 2):
+        ys = sorted(y for (y, _) in anchors[col])
+        if len(ys) < 3:
+            continue
+        gaps = sorted(ys[i + 1] - ys[i] for i in range(len(ys) - 1))
+        pitch = gaps[len(gaps) // 2]
+        if pitch <= 0:
+            continue
+        rebuilt = []
+        for i, y in enumerate(ys):
+            rebuilt.append(y)
+            if i + 1 < len(ys):
+                gap = ys[i + 1] - y
+                extra = int(round(gap / float(pitch))) - 1
+                for k in range(1, min(extra, 3) + 1):
+                    rebuilt.append(y + int(pitch * k))
+                    inserted += 1
+        known = dict(anchors[col])
+        anchors[col] = [(y, known.get(y)) for y in sorted(rebuilt)]
+    return anchors, inserted
+
+
+def solve_serials(anchors):
+    """Derive every serial on the page from the grid, not from each box.
+
+    The roll numbers row-major across three columns, so within one column
+    consecutive boxes differ by exactly 3: column c's i-th box holds
+    base + 3i + c. Every serial OCR did read is therefore a vote for the
+    page's base number. Taking the majority fixes boxes whose serial was
+    misread or not found at all, and is self-correcting rather than
+    trusting any single reading.
+    """
+    votes = {}
+    for col in (0, 1, 2):
+        for i, (y, serial) in enumerate(sorted(anchors[col])):
+            if serial is not None:
+                b = serial - 3 * i - col
+                votes[b] = votes.get(b, 0) + 1
+    if not votes:
+        return anchors, 0
+
+    base = max(votes.items(), key=lambda kv: kv[1])[0]
+    out, corrected = {0: [], 1: [], 2: []}, 0
+    for col in (0, 1, 2):
+        for i, (y, serial) in enumerate(sorted(anchors[col])):
+            derived = base + 3 * i + col
+            if serial != derived:
+                corrected += 1
+            out[col].append((y, derived))
+    return out, corrected
+
+
+def extract_pdf(tess, pdf_path, part, only_pages=None, quiet=False, debug=False):
     out = []
     for pageno, blob in page_jpegs(pdf_path):
         if only_pages and pageno not in only_pages:
@@ -168,21 +311,55 @@ def extract_pdf(tess, pdf_path, part, only_pages=None, quiet=False):
         msec = RE_SECTION.search(header)
         section = msec.group(1).strip() if msec else ''
 
-        top, bottom = int(H * 0.030), int(H * 0.975)
-        strips = [(0.015, 0.337), (0.337, 0.660), (0.660, 0.990)]
+        anchors = page_anchors(tess, img, W)
+        boxes = sum(len(v) for v in anchors.values())
+        anchors, inserted = fill_anchor_gaps(anchors)
+        anchors, corrected = solve_serials(anchors)
 
-        found = []
-        for a, b in strips:
-            txt = ocr(tess, img.crop((int(W * a), top, int(W * b), bottom)), psm='6')
-            found.extend(parse_strip(txt))
+        found, failed = [], []
+        for col in (0, 1, 2):
+            entries = sorted(anchors[col])
+            x0, x1 = COL_BOUNDS[col]
+            for i, (y, serial) in enumerate(entries):
+                top = max(0, y - 22)
+                bottom = (entries[i + 1][0] - 22) if i + 1 < len(entries) else int(H * 0.975)
+                if bottom - top < 40:
+                    continue
+                cell = img.crop((int(W * x0), top, int(W * x1), bottom))
 
-        for r in found:
-            r['part'] = str(part)
-            if section:
-                r['section'] = section
+                # psm 6 reads the label lines most accurately; the serial is
+                # already known from the page anchors.
+                body = parse_strip('0\n' + ocr(tess, cell, psm='6'))
+                rec = body[0] if body else None
+                if rec is None:
+                    failed.append((col, y, 'no fields'))
+                    continue
+                if serial is None:
+                    failed.append((col, y, 'no serial'))
+                    continue
+                rec['serial'] = serial
+                rec['part'] = str(part)
+                if section:
+                    rec['section'] = section
+                found.append(rec)
+
         out.extend(found)
         if not quiet:
-            print(f'  part {part} page {pageno:>3}: {len(found):>2} records', file=sys.stderr)
+            ser = sorted(r['serial'] for r in found)
+            span = '%d-%d' % (ser[0], ser[-1]) if ser else '-'
+            gaps = [a for a in range(ser[0], ser[-1] + 1) if a not in ser] if ser else []
+            expected = boxes + inserted
+            flag = '' if len(found) == expected else '   <-- %d unparsed' % (expected - len(found))
+            if corrected:
+                flag += '  [%d serial(s) derived from grid]' % corrected
+            if inserted:
+                flag += '  [%d box(es) recovered from row pitch]' % inserted
+            print('  part %s page %3d: %2d records (%d boxes) serials %s%s%s'
+                  % (part, pageno, len(found), boxes, span,
+                     ' MISSING %s' % gaps if gaps else '', flag), file=sys.stderr)
+            if debug:
+                for (c, y, why) in failed:
+                    print('    [debug] col%d y=%d FAIL (%s)' % (c, y, why), file=sys.stderr)
     return out
 
 
@@ -193,6 +370,8 @@ def main():
     ap.add_argument('--pages', help='comma-separated page numbers, for a quick trial')
     ap.add_argument('--sample', type=int, default=0, help='print N parsed records to check quality')
     ap.add_argument('--include-epic', action='store_true', help='keep EPIC numbers (off by default)')
+    ap.add_argument('--debug', action='store_true',
+                    help='report the structure of boxes that fail to parse (no personal data printed)')
     args = ap.parse_args()
 
     tess = find_tesseract()
@@ -211,7 +390,7 @@ def main():
     all_recs = []
     for path, part, expected in pdfs:
         print(f'\n{os.path.basename(path)}  (part {part})', file=sys.stderr)
-        recs = extract_pdf(tess, path, part, only)
+        recs = extract_pdf(tess, path, part, only, debug=args.debug)
         all_recs.extend(recs)
 
         serials = sorted(r['serial'] for r in recs)
