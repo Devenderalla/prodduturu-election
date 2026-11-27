@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="description" content="Election analytics for the Prodduturu village president election - aggregate statistics only.">
+<title>Prodduturu Election Analytics</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ===================== APP SHELL ===================== -->
+<header class="appbar" id="appbar">
+  <div class="appbar-main">
+    <div class="appbar-title">
+      <h1 id="screenTitle" data-i18n="nav.dashboard">Dashboard</h1>
+      <p class="appbar-sub"><span data-i18n="app.place">Prodduturu &middot; Kankipadu &middot; Andhra Pradesh</span></p>
+    </div>
+    <div class="appbar-actions">
+      <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Language">
+        <span id="langBtnLabel">తె</span>
+      </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch theme" title="Theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+      <button class="icon-btn" id="modeBtn" type="button" aria-label="Switch mode" title="Mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-7 2-7 4.5V21h14v-2.5C19 16 16 14 12 14z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mode-strip" id="modeStrip">
+    <span class="chip chip-mode" id="modeChip" data-i18n="mode.volunteer">Volunteer mode</span>
+    <span class="chip chip-muted" id="storageChip">local</span>
+    <span class="chip chip-muted" id="updatedChip">&mdash;</span>
+  </div>
+</header>
+
+<main id="screenRoot" class="screen-root" tabindex="-1">
+  <!-- views render here -->
+</main>
+
+<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
+  <button class="nav-item is-active" data-route="dashboard" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+    <span data-i18n="nav.short.dashboard">Home</span>
+  </button>
+  <button class="nav-item" data-route="search" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 1-4.9 14.3l-3 3-1.4-1.4 3-3A8 8 0 0 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+    <span data-i18n="nav.short.search">Search</span>
+  </button>
+  <button class="nav-item" data-route="turnout" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h3V9H4zm6.5 0h3V4h-3zM17 20h3v-8h-3z"/></svg>
+    <span data-i18n="nav.short.turnout">Turnout</span>
+  </button>
+  <button class="nav-item" data-route="analytics" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.5 9 11l4 4 5.5-6.5L20 10l-7 8-4-4-4.6 5z"/></svg>
+    <span data-i18n="nav.short.analytics">Stats</span>
+  </button>
+  <button class="nav-item" data-route="results" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v4a5 5 0 0 1-4 4.9V15h3v2H6v-2h3v-3.1A5 5 0 0 1 5 7zm2 2v2a3 3 0 0 0 10 0V5zM5 19h14v2H5z"/></svg>
+    <span data-i18n="nav.short.results">Results</span>
+  </button>
+  <button class="nav-item" data-route="expenses" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zm2 2v8h14V8zm2 2h4v4H7z"/></svg>
+    <span data-i18n="nav.short.expenses">Expense</span>
+  </button>
+  <button class="nav-item" data-route="settings" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4-2-.6-.6-1.5 1-1.8-1.9-1.9-1.8 1-1.5-.6L13.6 4h-2.7l-.6 2-1.5.6-1.8-1L5.1 7.6l1 1.8-.6 1.5L3.5 12v2.7l2 .6.6 1.5-1 1.8 1.9 1.9 1.8-1 1.5.6.6 2h2.7l.6-2 1.5-.6 1.8 1 1.9-1.9-1-1.8.6-1.5 2-.6z"/></svg>
+    <span data-i18n="nav.short.settings">Settings</span>
+  </button>
+</nav>
+
+<!-- ===================== TOASTS ===================== -->
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ===================== MODAL ===================== -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">&nbsp;</h2>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel" type="button" data-i18n="common.cancel">Cancel</button>
+      <button class="btn btn-primary" id="modalOk" type="button" data-i18n="common.confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/db.js"></script>
+<script src="js/state.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/data/demo-voters.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/search.js"></script>
+<script src="js/views/turnout.js"></script>
+<script src="js/views/analytics.js"></script>
+<script src="js/views/results.js"></script>
+<script src="js/views/expenses.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

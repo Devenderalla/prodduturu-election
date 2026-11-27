@@ -1,0 +1,331 @@
+/* =========================================================
+   i18n - English / Telugu
+   Usage: App.i18n.t('nav.dashboard'), App.i18n.set('te')
+   ========================================================= */
+(function (global) {
+  'use strict';
+  var App = global.App = global.App || {};
+
+  var DICT = {
+    en: {
+      'app.name': 'Prodduturu Election Analytics',
+      'app.place': 'Prodduturu · Kankipadu · Andhra Pradesh',
+      'app.electionType': 'Village President (Sarpanch) election',
+
+      'nav.dashboard': 'Dashboard', 'nav.search': 'Voter Search Demo', 'nav.turnout': 'Turnout',
+      'nav.analytics': 'Analytics', 'nav.results': 'Results', 'nav.expenses': 'Expenses', 'nav.settings': 'Settings',
+      'nav.short.dashboard': 'Home', 'nav.short.search': 'Search', 'nav.short.turnout': 'Turnout',
+      'nav.short.analytics': 'Stats', 'nav.short.results': 'Results', 'nav.short.expenses': 'Expense',
+      'nav.short.settings': 'Settings',
+
+      'mode.volunteer': 'Volunteer mode', 'mode.admin': 'Admin mode',
+      'mode.switchToAdmin': 'Switch to admin mode', 'mode.switchToVolunteer': 'Switch to volunteer mode',
+      'mode.pinPrompt': 'Enter admin PIN', 'mode.pinSet': 'Set an admin PIN (4-8 digits)',
+      'mode.pinWrong': 'Incorrect PIN', 'mode.pinSaved': 'Admin PIN saved',
+      'mode.pinNote': 'This PIN only gates this device. It is device-local and is not a substitute for server-side authentication.',
+      'mode.adminOn': 'Admin mode on', 'mode.volunteerOn': 'Volunteer mode on',
+      'mode.adminOnly': 'Admin mode required',
+      'mode.adminOnlyBody': 'This module edits aggregate election data. Switch to admin mode to continue.',
+
+      'common.save': 'Save', 'common.cancel': 'Cancel', 'common.confirm': 'Confirm', 'common.delete': 'Delete',
+      'common.edit': 'Edit', 'common.add': 'Add', 'common.clear': 'Clear', 'common.reset': 'Reset',
+      'common.close': 'Close', 'common.export': 'Export', 'common.import': 'Import', 'common.total': 'Total',
+      'common.of': 'of', 'common.none': 'None', 'common.saved': 'Saved', 'common.updated': 'Updated',
+      'common.deleted': 'Deleted', 'common.voters': 'voters', 'common.votes': 'votes', 'common.percent': 'Percent',
+      'common.date': 'Date', 'common.time': 'Time', 'common.amount': 'Amount', 'common.category': 'Category',
+      'common.description': 'Description', 'common.part': 'Part', 'common.all': 'All', 'common.yes': 'Yes',
+      'common.no': 'No', 'common.notSet': 'Not set', 'common.demo': 'DEMO', 'common.hypothetical': 'HYPOTHETICAL',
+      'common.official': 'OFFICIAL', 'common.future': 'FUTURE PHASE', 'common.lastUpdated': 'Last updated',
+      'common.never': 'never', 'common.required': 'This field is required', 'common.invalidNumber': 'Enter a valid number',
+
+      'dash.registered': 'Total registered voters', 'dash.absentees': 'Expected absentees',
+      'dash.expTurnout': 'Expected turnout', 'dash.expTurnoutPct': 'Expected turnout %',
+      'dash.actualTurnout': 'Actual aggregate turnout', 'dash.remaining': 'Remaining turnout',
+      'dash.validVotes': 'Total valid votes counted', 'dash.rejected': 'Rejected votes',
+      'dash.partTotals': 'Electoral-roll part-wise totals', 'dash.turnoutProgress': 'Turnout against expectation',
+      'dash.countProgress': 'Counting progress', 'dash.ofExpected': 'of expected turnout',
+      'dash.ofRegistered': 'of registered voters', 'dash.breakdown': 'Voter roll breakdown',
+      'dash.voted': 'Voted (aggregate)', 'dash.notVoted': 'Not yet recorded', 'dash.absent': 'Expected absent',
+      'dash.rollSource': 'Draft electoral rolls', 'dash.rollNote': 'Original estimate was {n} voters. Draft rolls supplied list {m}. Set the final official count in Settings after verification.',
+      'dash.noTurnout': 'No turnout readings yet', 'dash.noTurnoutSub': 'Add an aggregate hourly reading in the Turnout module.',
+      'dash.quick': 'Quick actions', 'dash.statusFinal': 'Final result declared', 'dash.statusCounting': 'Counting in progress',
+      'dash.statusNotStarted': 'Counting not started',
+
+      'search.title': 'Voter search demonstration', 'search.placeholder': 'Name or serial number',
+      'search.hint': 'Type at least 2 characters. Demonstration records only.',
+      'search.demoBanner': 'Demonstration data only', 'search.demoBannerBody': 'These are fictional sample records used to demonstrate the search interface. No real electoral roll data is stored in this app.',
+      'search.resultsCount': '{n} matching records', 'search.noResults': 'No matching records',
+      'search.noResultsSub': 'Try a different sample name or serial number.',
+      'search.start': 'Search the demonstration roll', 'search.startSub': 'Enter a sample name or serial number to see how results appear to volunteers.',
+      'search.serial': 'Serial no.', 'search.ward': 'Ward', 'search.wardUnverified': 'Ward not verified',
+      'search.readonly': 'Read-only electoral information', 'search.scope': 'This interface shows roll information only. It does not record political support, payments or who has voted.',
+      'search.clearAll': 'Clear search', 'search.go': 'Search',
+
+      'turnout.title': 'Aggregate turnout', 'turnout.addReading': 'Add hourly reading',
+      'turnout.editReading': 'Edit reading', 'turnout.readingTime': 'Reading time',
+      'turnout.cumulative': 'Cumulative votes cast at this time', 'turnout.trend': 'Turnout trend',
+      'turnout.compare': 'Expected vs actual', 'turnout.partStats': 'Polling part-wise statistics',
+      'turnout.readings': 'Hourly readings', 'turnout.noReadings': 'No readings recorded',
+      'turnout.noReadingsSub': 'Add the first cumulative reading to start the trend chart.',
+      'turnout.latest': 'Latest reading', 'turnout.perHour': 'Added this hour',
+      'turnout.errNegative': 'Counts cannot be negative', 'turnout.errOverPart': 'Cannot exceed registered voters in this part ({n})',
+      'turnout.errDecrease': 'Cumulative count cannot be lower than an earlier reading ({n})',
+      'turnout.errTime': 'Enter a reading time', 'turnout.errDupTime': 'A reading already exists for this time',
+      'turnout.deleteReading': 'Delete this reading?', 'turnout.expected': 'Expected', 'turnout.actual': 'Actual',
+      'turnout.pollDate': 'Polling date',
+
+      'an.title': 'Election analytics', 'an.neutral': 'Neutral aggregate analysis',
+      'an.neutralBody': 'All figures below are aggregate statistics. Scenario figures are arithmetic illustrations of assumptions you enter - they are not predictions and do not indicate any likely winner.',
+      'an.history': 'Historical turnout comparison', 'an.historyResults': 'Historical results',
+      'an.addHistory': 'Add past election', 'an.year': 'Year', 'an.registeredThen': 'Registered voters',
+      'an.turnoutThen': 'Votes cast', 'an.winner': 'Winning candidate', 'an.winnerVotes': 'Winning votes',
+      'an.runnerUp': 'Runner-up', 'an.runnerUpVotes': 'Runner-up votes', 'an.margin': 'Margin',
+      'an.noHistory': 'No historical elections recorded', 'an.noHistorySub': 'Add past election figures to compare turnout over time.',
+      'an.scenario': 'Turnout scenario analysis', 'an.assumedTurnout': 'Assumed turnout %',
+      'an.scenarioVotes': 'Votes cast under this assumption', 'an.scenarioNote': 'Hypothetical arithmetic only',
+      'an.uncertainty': 'Aggregate statistical uncertainty', 'an.uncertaintyBody': 'Margin of error at 95% confidence for a share measured on {n} counted votes.',
+      'an.moe': 'Margin of error', 'an.shareAt': 'at share', 'an.needCount': 'Enter counted votes in the Results module to compute uncertainty.',
+      'an.assumptions': 'Configurable assumptions', 'an.assumedRejectPct': 'Assumed rejected-vote %',
+      'an.projValid': 'Projected valid votes', 'an.projRejected': 'Projected rejected votes',
+      'an.deleteHistory': 'Delete this historical record?', 'an.turnoutPct': 'Turnout %',
+      'an.now': 'Now', 'an.thisElection': 'This election (actual)', 'an.thisElectionExp': 'This election (expected)',
+
+      'res.title': 'Candidate results', 'res.candidate': 'Candidate', 'res.symbol': 'Symbol',
+      'res.votes': 'Reported votes', 'res.share': 'Vote share', 'res.compare': 'Candidate comparison',
+      'res.validVotes': 'Total valid votes', 'res.rejected': 'Rejected votes', 'res.lead': 'Reported leading margin',
+      'res.leader': 'Currently reported ahead', 'res.progress': 'Counting progress', 'res.status': 'Result status',
+      'res.statusNotStarted': 'Not started', 'res.statusCounting': 'Counting in progress', 'res.statusFinal': 'Final',
+      'res.editCandidates': 'Edit candidates', 'res.enterVotes': 'Enter reported votes',
+      'res.officialNote': 'Officially reported figures', 'res.officialNoteBody': 'Enter only vote counts that have been officially reported at the counting centre. This module stores reported numbers; it does not estimate results.',
+      'res.noVotes': 'No vote counts entered', 'res.noVotesSub': 'Enter officially reported counts in admin mode.',
+      'res.name': 'Candidate name', 'res.nameTe': 'Candidate name (Telugu)',
+      'res.errVotes': 'Vote count cannot be negative', 'res.overTurnout': 'Valid + rejected votes ({a}) exceed recorded turnout ({b}). Check the figures.',
+      'res.markFinal': 'Mark result final', 'res.markCounting': 'Mark counting in progress',
+      'res.markNotStarted': 'Mark counting not started', 'res.tie': 'Tied',
+      'res.symbolHint': 'E.g. Scissors, Pot, Ladder, Bicycle',
+
+      'exp.title': 'Campaign expenses', 'exp.add': 'Add expense', 'exp.editOne': 'Edit expense',
+      'exp.lawful': 'Lawful campaign expenditure only', 'exp.lawfulBody': 'Record only legitimate campaign expenditure paid to authorised vendors or campaign staff. This module cannot and does not link any payment to a voter or to voting behaviour.',
+      'exp.total': 'Total expenditure', 'exp.count': 'Entries', 'exp.byCategory': 'Category-wise expenditure',
+      'exp.receipt': 'Receipt reference', 'exp.payee': 'Authorised vendor / staff', 'exp.payeeType': 'Payee type',
+      'exp.payeeVendor': 'Vendor', 'exp.payeeStaff': 'Campaign staff', 'exp.noExpenses': 'No expenses recorded',
+      'exp.noExpensesSub': 'Add the first campaign expense to build the report.',
+      'exp.deleteOne': 'Delete this expense entry?', 'exp.exportCsv': 'Export expense CSV',
+      'exp.errAmount': 'Enter an amount greater than zero', 'exp.errCategory': 'Choose a category',
+      'exp.avg': 'Average entry', 'exp.largest': 'Largest entry',
+      'exp.cat.printing': 'Printing & stationery', 'exp.cat.publicity': 'Publicity & banners',
+      'exp.cat.transport': 'Transport & fuel', 'exp.cat.meetings': 'Public meetings', 'exp.cat.audio': 'Sound & audio',
+      'exp.cat.refresh': 'Volunteer refreshments', 'exp.cat.office': 'Campaign office', 'exp.cat.staff': 'Staff payments',
+      'exp.cat.fees': 'Statutory fees', 'exp.cat.other': 'Other',
+
+      'set.title': 'Settings', 'set.election': 'Election configuration', 'set.rollParts': 'Electoral-roll parts',
+      'set.registered': 'Registered voters (in use)', 'set.originalEstimate': 'Original estimated voter count',
+      'set.draftTotal': 'Draft roll total (from parts)', 'set.officialTotal': 'Final official voter count',
+      'set.useOfficial': 'Use official count for all calculations', 'set.officialHelp': 'Leave blank until the final roll is verified. While blank, the draft roll total is used.',
+      'set.absentees': 'Expected absentees', 'set.candidates': 'Candidates & symbols',
+      'set.appearance': 'Appearance & language', 'set.theme': 'Theme', 'set.themeLight': 'Light',
+      'set.themeDark': 'Dark', 'set.themeAuto': 'System', 'set.language': 'Language',
+      'set.data': 'Data & backup', 'set.storage': 'Storage engine', 'set.exportJson': 'Export JSON backup',
+      'set.importJson': 'Import JSON backup', 'set.exportCsv': 'Export CSV reports', 'set.resetAll': 'Reset all data',
+      'set.resetConfirm': 'Reset all application data?', 'set.resetConfirmBody': 'Every aggregate figure, candidate, turnout reading and expense entry stored on this device will be deleted and replaced with the starting configuration. Export a backup first if you need one. This cannot be undone.',
+      'set.resetDone': 'All data reset', 'set.importConfirm': 'Replace all data with this backup?',
+      'set.importConfirmBody': 'The backup contains data saved on {d}. Importing replaces everything currently stored on this device.',
+      'set.importDone': 'Backup restored', 'set.importBad': 'This file is not a valid backup',
+      'set.deviceNote': 'Separate devices, separate databases',
+      'set.deviceNoteBody': 'All data is stored locally in this browser on this device only. Another phone running this app keeps its own separate database. Figures do not sync between devices unless a shared backend is added in a future phase. Use JSON backup export/import to move data between devices, and keep a backup before clearing browser data.',
+      'set.version': 'Application version', 'set.security': 'Admin PIN', 'set.setPin': 'Set / change admin PIN',
+      'set.clearPin': 'Remove admin PIN', 'set.pinActive': 'A device PIN is set', 'set.pinInactive': 'No PIN set - admin mode is unprotected on this device',
+      'set.future': 'Reserved for future development',
+      'set.f.ocr': 'OCR for aggregate document statistics', 'set.f.anon': 'Anonymised document-processing demo',
+      'set.f.auth': 'Secure team authentication', 'set.f.cloud': 'Cloud database',
+      'set.f.sync': 'Real-time aggregate synchronisation', 'set.f.roles': 'Role-based permissions',
+      'set.f.audit': 'Audit logs', 'set.f.pwa': 'Installable PWA packaging',
+      'set.futureBody': 'These are not implemented. The modules above are built so each can be added without rewriting the app.',
+      'set.partName': 'Part name', 'set.partVoters': 'Registered voters',
+      'set.errAbsentees': 'Absentees must be between 0 and the registered total ({n})',
+      'set.errPartVoters': 'Enter a voter count of 0 or more', 'set.errPin': 'PIN must be 4-8 digits',
+      'set.pinRemoved': 'Admin PIN removed', 'set.candidateCount': '4 contesting candidates'
+    },
+
+    te: {
+      'app.name': 'ప్రొద్దుటూరు ఎన్నికల విశ్లేషణ',
+      'app.place': 'ప్రొద్దుటూరు · కంకిపాడు · ఆంధ్రప్రదేశ్',
+      'app.electionType': 'గ్రామ సర్పంచ్ ఎన్నిక',
+
+      'nav.dashboard': 'డాష్‌బోర్డ్', 'nav.search': 'ఓటరు శోధన నమూనా', 'nav.turnout': 'ఓటింగ్ శాతం',
+      'nav.analytics': 'విశ్లేషణలు', 'nav.results': 'ఫలితాలు', 'nav.expenses': 'ఖర్చులు', 'nav.settings': 'సెట్టింగ్‌లు',
+      'nav.short.dashboard': 'హోమ్', 'nav.short.search': 'శోధన', 'nav.short.turnout': 'ఓటింగ్',
+      'nav.short.analytics': 'గణాంకాలు', 'nav.short.results': 'ఫలితాలు', 'nav.short.expenses': 'ఖర్చు',
+      'nav.short.settings': 'సెట్టింగ్‌లు',
+
+      'mode.volunteer': 'వాలంటీర్ మోడ్', 'mode.admin': 'నిర్వాహక మోడ్',
+      'mode.switchToAdmin': 'నిర్వాహక మోడ్‌కు మారు', 'mode.switchToVolunteer': 'వాలంటీర్ మోడ్‌కు మారు',
+      'mode.pinPrompt': 'నిర్వాహక పిన్ నమోదు చేయండి', 'mode.pinSet': 'నిర్వాహక పిన్ ఏర్పాటు చేయండి (4-8 అంకెలు)',
+      'mode.pinWrong': 'పిన్ తప్పు', 'mode.pinSaved': 'నిర్వాహక పిన్ భద్రమైంది',
+      'mode.pinNote': 'ఈ పిన్ ఈ పరికరానికి మాత్రమే వర్తిస్తుంది. ఇది సర్వర్ స్థాయి ప్రామాణీకరణకు ప్రత్యామ్నాయం కాదు.',
+      'mode.adminOn': 'నిర్వాహక మోడ్ ఆన్', 'mode.volunteerOn': 'వాలంటీర్ మోడ్ ఆన్',
+      'mode.adminOnly': 'నిర్వాహక మోడ్ అవసరం',
+      'mode.adminOnlyBody': 'ఈ విభాగం మొత్తం ఎన్నికల డేటాను మారుస్తుంది. కొనసాగించడానికి నిర్వాహక మోడ్‌కు మారండి.',
+
+      'common.save': 'భద్రపరచు', 'common.cancel': 'రద్దు', 'common.confirm': 'నిర్ధారించు', 'common.delete': 'తొలగించు',
+      'common.edit': 'మార్చు', 'common.add': 'చేర్చు', 'common.clear': 'ఖాళీ చేయి', 'common.reset': 'రీసెట్',
+      'common.close': 'మూసివేయి', 'common.export': 'ఎగుమతి', 'common.import': 'దిగుమతి', 'common.total': 'మొత్తం',
+      'common.of': '/', 'common.none': 'ఏమీ లేదు', 'common.saved': 'భద్రమైంది', 'common.updated': 'నవీకరించబడింది',
+      'common.deleted': 'తొలగించబడింది', 'common.voters': 'ఓటర్లు', 'common.votes': 'ఓట్లు', 'common.percent': 'శాతం',
+      'common.date': 'తేదీ', 'common.time': 'సమయం', 'common.amount': 'మొత్తం', 'common.category': 'వర్గం',
+      'common.description': 'వివరణ', 'common.part': 'భాగం', 'common.all': 'అన్నీ', 'common.yes': 'అవును',
+      'common.no': 'కాదు', 'common.notSet': 'నిర్ణయించలేదు', 'common.demo': 'నమూనా', 'common.hypothetical': 'ఊహాత్మకం',
+      'common.official': 'అధికారిక', 'common.future': 'భవిష్యత్ దశ', 'common.lastUpdated': 'చివరి నవీకరణ',
+      'common.never': 'ఎప్పుడూ లేదు', 'common.required': 'ఈ వివరం అవసరం', 'common.invalidNumber': 'సరైన సంఖ్య నమోదు చేయండి',
+
+      'dash.registered': 'మొత్తం నమోదిత ఓటర్లు', 'dash.absentees': 'అంచనా గైర్హాజరులు',
+      'dash.expTurnout': 'అంచనా ఓటింగ్', 'dash.expTurnoutPct': 'అంచనా ఓటింగ్ శాతం',
+      'dash.actualTurnout': 'వాస్తవ మొత్తం ఓటింగ్', 'dash.remaining': 'మిగిలిన ఓటింగ్',
+      'dash.validVotes': 'లెక్కించిన చెల్లుబాటు ఓట్లు', 'dash.rejected': 'తిరస్కరించిన ఓట్లు',
+      'dash.partTotals': 'ఓటరు జాబితా భాగాల మొత్తాలు', 'dash.turnoutProgress': 'అంచనాతో పోలిస్తే ఓటింగ్',
+      'dash.countProgress': 'లెక్కింపు పురోగతి', 'dash.ofExpected': 'అంచనా ఓటింగ్‌లో',
+      'dash.ofRegistered': 'నమోదిత ఓటర్లలో', 'dash.breakdown': 'ఓటరు జాబితా విభజన',
+      'dash.voted': 'ఓటు వేసినవారు (మొత్తం)', 'dash.notVoted': 'ఇంకా నమోదు కాలేదు', 'dash.absent': 'అంచనా గైర్హాజరు',
+      'dash.rollSource': 'ముసాయిదా ఓటరు జాబితాలు', 'dash.rollNote': 'మొదటి అంచనా {n} ఓటర్లు. అందించిన ముసాయిదా జాబితాలలో {m} ఉన్నారు. ధృవీకరణ తర్వాత తుది అధికారిక సంఖ్యను సెట్టింగ్‌లలో నమోదు చేయండి.',
+      'dash.noTurnout': 'ఇంకా ఓటింగ్ నమోదులు లేవు', 'dash.noTurnoutSub': 'ఓటింగ్ విభాగంలో గంటవారీ నమోదు చేర్చండి.',
+      'dash.quick': 'త్వరిత చర్యలు', 'dash.statusFinal': 'తుది ఫలితం ప్రకటించబడింది', 'dash.statusCounting': 'లెక్కింపు జరుగుతోంది',
+      'dash.statusNotStarted': 'లెక్కింపు ప్రారంభం కాలేదు',
+
+      'search.title': 'ఓటరు శోధన ప్రదర్శన', 'search.placeholder': 'పేరు లేదా క్రమ సంఖ్య',
+      'search.hint': 'కనీసం 2 అక్షరాలు టైప్ చేయండి. నమూనా రికార్డులు మాత్రమే.',
+      'search.demoBanner': 'నమూనా డేటా మాత్రమే', 'search.demoBannerBody': 'ఇవి శోధన ఇంటర్‌ఫేస్‌ను చూపడానికి ఉపయోగించే కల్పిత నమూనా రికార్డులు. ఈ యాప్‌లో నిజమైన ఓటరు జాబితా డేటా నిల్వ చేయబడలేదు.',
+      'search.resultsCount': '{n} రికార్డులు దొరికాయి', 'search.noResults': 'రికార్డులు దొరకలేదు',
+      'search.noResultsSub': 'వేరే నమూనా పేరు లేదా క్రమ సంఖ్య ప్రయత్నించండి.',
+      'search.start': 'నమూనా జాబితాలో వెతకండి', 'search.startSub': 'వాలంటీర్లకు ఫలితాలు ఎలా కనిపిస్తాయో చూడటానికి నమూనా పేరు లేదా క్రమ సంఖ్య నమోదు చేయండి.',
+      'search.serial': 'క్రమ సంఖ్య', 'search.ward': 'వార్డు', 'search.wardUnverified': 'వార్డు ధృవీకరించబడలేదు',
+      'search.readonly': 'చదవడానికి మాత్రమే ఓటరు సమాచారం', 'search.scope': 'ఈ విభాగం జాబితా సమాచారాన్ని మాత్రమే చూపుతుంది. రాజకీయ మద్దతు, చెల్లింపులు లేదా ఎవరు ఓటు వేశారో నమోదు చేయదు.',
+      'search.clearAll': 'శోధన ఖాళీ చేయి', 'search.go': 'వెతకండి',
+
+      'turnout.title': 'మొత్తం ఓటింగ్', 'turnout.addReading': 'గంటవారీ నమోదు చేర్చు',
+      'turnout.editReading': 'నమోదు మార్చు', 'turnout.readingTime': 'నమోదు సమయం',
+      'turnout.cumulative': 'ఈ సమయానికి పోలైన మొత్తం ఓట్లు', 'turnout.trend': 'ఓటింగ్ ధోరణి',
+      'turnout.compare': 'అంచనా vs వాస్తవం', 'turnout.partStats': 'పోలింగ్ భాగాల గణాంకాలు',
+      'turnout.readings': 'గంటవారీ నమోదులు', 'turnout.noReadings': 'నమోదులు లేవు',
+      'turnout.noReadingsSub': 'ధోరణి చార్ట్ ప్రారంభించడానికి మొదటి నమోదు చేర్చండి.',
+      'turnout.latest': 'చివరి నమోదు', 'turnout.perHour': 'ఈ గంటలో చేరినవి',
+      'turnout.errNegative': 'సంఖ్యలు రుణాత్మకంగా ఉండకూడదు', 'turnout.errOverPart': 'ఈ భాగంలోని నమోదిత ఓటర్లను ({n}) మించకూడదు',
+      'turnout.errDecrease': 'మొత్తం సంఖ్య ముందటి నమోదు ({n}) కంటే తక్కువగా ఉండకూడదు',
+      'turnout.errTime': 'నమోదు సమయం ఇవ్వండి', 'turnout.errDupTime': 'ఈ సమయానికి ఇప్పటికే నమోదు ఉంది',
+      'turnout.deleteReading': 'ఈ నమోదును తొలగించాలా?', 'turnout.expected': 'అంచనా', 'turnout.actual': 'వాస్తవం',
+      'turnout.pollDate': 'పోలింగ్ తేదీ',
+
+      'an.title': 'ఎన్నికల విశ్లేషణ', 'an.neutral': 'తటస్థ మొత్తం విశ్లేషణ',
+      'an.neutralBody': 'కింది అంకెలన్నీ మొత్తం గణాంకాలు. దృశ్య అంకెలు మీరు నమోదు చేసిన ఊహల గణిత ఉదాహరణలు మాత్రమే - అవి అంచనాలు కావు, ఎవరు గెలుస్తారో సూచించవు.',
+      'an.history': 'గత ఓటింగ్ పోలిక', 'an.historyResults': 'గత ఫలితాలు',
+      'an.addHistory': 'గత ఎన్నిక చేర్చు', 'an.year': 'సంవత్సరం', 'an.registeredThen': 'నమోదిత ఓటర్లు',
+      'an.turnoutThen': 'పోలైన ఓట్లు', 'an.winner': 'విజేత అభ్యర్థి', 'an.winnerVotes': 'విజేత ఓట్లు',
+      'an.runnerUp': 'ద్వితీయ స్థానం', 'an.runnerUpVotes': 'ద్వితీయ ఓట్లు', 'an.margin': 'ఆధిక్యం',
+      'an.noHistory': 'గత ఎన్నికల వివరాలు లేవు', 'an.noHistorySub': 'కాలక్రమేణా ఓటింగ్ పోల్చడానికి గత ఎన్నికల అంకెలు చేర్చండి.',
+      'an.scenario': 'ఓటింగ్ దృశ్య విశ్లేషణ', 'an.assumedTurnout': 'ఊహించిన ఓటింగ్ శాతం',
+      'an.scenarioVotes': 'ఈ ఊహ ప్రకారం పోలైన ఓట్లు', 'an.scenarioNote': 'ఊహాత్మక గణితం మాత్రమే',
+      'an.uncertainty': 'మొత్తం గణాంక అనిశ్చితి', 'an.uncertaintyBody': '{n} లెక్కించిన ఓట్ల ఆధారంగా 95% విశ్వాస స్థాయిలో దోష పరిధి.',
+      'an.moe': 'దోష పరిధి', 'an.shareAt': 'వాటా వద్ద', 'an.needCount': 'అనిశ్చితి లెక్కించడానికి ఫలితాల విభాగంలో ఓట్లు నమోదు చేయండి.',
+      'an.assumptions': 'మార్చగల ఊహలు', 'an.assumedRejectPct': 'ఊహించిన తిరస్కృత ఓట్ల శాతం',
+      'an.projValid': 'అంచనా చెల్లుబాటు ఓట్లు', 'an.projRejected': 'అంచనా తిరస్కృత ఓట్లు',
+      'an.deleteHistory': 'ఈ గత రికార్డును తొలగించాలా?', 'an.turnoutPct': 'ఓటింగ్ శాతం',
+      'an.now': 'ఇప్పుడు', 'an.thisElection': 'ఈ ఎన్నిక (వాస్తవం)', 'an.thisElectionExp': 'ఈ ఎన్నిక (అంచనా)',
+
+      'res.title': 'అభ్యర్థుల ఫలితాలు', 'res.candidate': 'అభ్యర్థి', 'res.symbol': 'గుర్తు',
+      'res.votes': 'నమోదైన ఓట్లు', 'res.share': 'ఓట్ల వాటా', 'res.compare': 'అభ్యర్థుల పోలిక',
+      'res.validVotes': 'మొత్తం చెల్లుబాటు ఓట్లు', 'res.rejected': 'తిరస్కరించిన ఓట్లు', 'res.lead': 'నమోదైన ఆధిక్యం',
+      'res.leader': 'ప్రస్తుతం ఆధిక్యంలో', 'res.progress': 'లెక్కింపు పురోగతి', 'res.status': 'ఫలిత స్థితి',
+      'res.statusNotStarted': 'ప్రారంభం కాలేదు', 'res.statusCounting': 'లెక్కింపు జరుగుతోంది', 'res.statusFinal': 'తుది',
+      'res.editCandidates': 'అభ్యర్థులను మార్చు', 'res.enterVotes': 'నమోదైన ఓట్లు ఇవ్వండి',
+      'res.officialNote': 'అధికారికంగా ప్రకటించిన అంకెలు', 'res.officialNoteBody': 'లెక్కింపు కేంద్రంలో అధికారికంగా ప్రకటించిన ఓట్ల సంఖ్యలను మాత్రమే నమోదు చేయండి. ఈ విభాగం ప్రకటించిన అంకెలను నిల్వ చేస్తుంది; ఫలితాలను అంచనా వేయదు.',
+      'res.noVotes': 'ఓట్ల సంఖ్యలు నమోదు కాలేదు', 'res.noVotesSub': 'నిర్వాహక మోడ్‌లో అధికారిక అంకెలు నమోదు చేయండి.',
+      'res.name': 'అభ్యర్థి పేరు', 'res.nameTe': 'అభ్యర్థి పేరు (తెలుగు)',
+      'res.errVotes': 'ఓట్ల సంఖ్య రుణాత్మకంగా ఉండకూడదు', 'res.overTurnout': 'చెల్లుబాటు + తిరస్కృత ఓట్లు ({a}) నమోదైన ఓటింగ్ ({b}) కంటే ఎక్కువ. అంకెలు సరిచూడండి.',
+      'res.markFinal': 'తుది ఫలితంగా గుర్తించు', 'res.markCounting': 'లెక్కింపు జరుగుతోందని గుర్తించు',
+      'res.markNotStarted': 'లెక్కింపు ప్రారంభం కాలేదని గుర్తించు', 'res.tie': 'సమానం',
+      'res.symbolHint': 'ఉదా. కత్తెర, కుండ, నిచ్చెన, సైకిల్',
+
+      'exp.title': 'ప్రచార ఖర్చులు', 'exp.add': 'ఖర్చు చేర్చు', 'exp.editOne': 'ఖర్చు మార్చు',
+      'exp.lawful': 'చట్టబద్ధమైన ప్రచార ఖర్చులు మాత్రమే', 'exp.lawfulBody': 'అధికృత వ్యాపారులకు లేదా ప్రచార సిబ్బందికి చెల్లించిన చట్టబద్ధమైన ప్రచార ఖర్చులను మాత్రమే నమోదు చేయండి. ఈ విభాగం ఏ చెల్లింపునూ ఓటరుతో లేదా ఓటింగ్ ప్రవర్తనతో అనుసంధానించదు.',
+      'exp.total': 'మొత్తం ఖర్చు', 'exp.count': 'నమోదులు', 'exp.byCategory': 'వర్గాల వారీ ఖర్చు',
+      'exp.receipt': 'రసీదు సంఖ్య', 'exp.payee': 'అధికృత వ్యాపారి / సిబ్బంది', 'exp.payeeType': 'చెల్లింపు గ్రహీత రకం',
+      'exp.payeeVendor': 'వ్యాపారి', 'exp.payeeStaff': 'ప్రచార సిబ్బంది', 'exp.noExpenses': 'ఖర్చులు నమోదు కాలేదు',
+      'exp.noExpensesSub': 'నివేదిక రూపొందించడానికి మొదటి ఖర్చు చేర్చండి.',
+      'exp.deleteOne': 'ఈ ఖర్చు నమోదును తొలగించాలా?', 'exp.exportCsv': 'ఖర్చు CSV ఎగుమతి',
+      'exp.errAmount': 'సున్నా కంటే ఎక్కువ మొత్తం నమోదు చేయండి', 'exp.errCategory': 'వర్గం ఎంచుకోండి',
+      'exp.avg': 'సగటు నమోదు', 'exp.largest': 'అత్యధిక నమోదు',
+      'exp.cat.printing': 'ముద్రణ & స్టేషనరీ', 'exp.cat.publicity': 'ప్రచారం & బ్యానర్లు',
+      'exp.cat.transport': 'రవాణా & ఇంధనం', 'exp.cat.meetings': 'బహిరంగ సభలు', 'exp.cat.audio': 'సౌండ్ & ఆడియో',
+      'exp.cat.refresh': 'వాలంటీర్ ఉపాహారాలు', 'exp.cat.office': 'ప్రచార కార్యాలయం', 'exp.cat.staff': 'సిబ్బంది చెల్లింపులు',
+      'exp.cat.fees': 'చట్టబద్ధ రుసుములు', 'exp.cat.other': 'ఇతర',
+
+      'set.title': 'సెట్టింగ్‌లు', 'set.election': 'ఎన్నికల కాన్ఫిగరేషన్', 'set.rollParts': 'ఓటరు జాబితా భాగాలు',
+      'set.registered': 'నమోదిత ఓటర్లు (వినియోగంలో)', 'set.originalEstimate': 'మొదటి అంచనా ఓటర్ల సంఖ్య',
+      'set.draftTotal': 'ముసాయిదా జాబితా మొత్తం (భాగాల నుండి)', 'set.officialTotal': 'తుది అధికారిక ఓటర్ల సంఖ్య',
+      'set.useOfficial': 'అన్ని లెక్కలకు అధికారిక సంఖ్యను ఉపయోగించు', 'set.officialHelp': 'తుది జాబితా ధృవీకరించే వరకు ఖాళీగా ఉంచండి. ఖాళీగా ఉన్నప్పుడు ముసాయిదా మొత్తం ఉపయోగించబడుతుంది.',
+      'set.absentees': 'అంచనా గైర్హాజరులు', 'set.candidates': 'అభ్యర్థులు & గుర్తులు',
+      'set.appearance': 'రూపం & భాష', 'set.theme': 'థీమ్', 'set.themeLight': 'లైట్',
+      'set.themeDark': 'డార్క్', 'set.themeAuto': 'సిస్టమ్', 'set.language': 'భాష',
+      'set.data': 'డేటా & బ్యాకప్', 'set.storage': 'నిల్వ ఇంజిన్', 'set.exportJson': 'JSON బ్యాకప్ ఎగుమతి',
+      'set.importJson': 'JSON బ్యాకప్ దిగుమతి', 'set.exportCsv': 'CSV నివేదికలు ఎగుమతి', 'set.resetAll': 'మొత్తం డేటా రీసెట్',
+      'set.resetConfirm': 'మొత్తం యాప్ డేటా రీసెట్ చేయాలా?', 'set.resetConfirmBody': 'ఈ పరికరంలో నిల్వ ఉన్న ప్రతి అంకె, అభ్యర్థి, ఓటింగ్ నమోదు మరియు ఖర్చు తొలగించబడి ప్రారంభ కాన్ఫిగరేషన్ వస్తుంది. అవసరమైతే ముందుగా బ్యాకప్ తీసుకోండి. ఇది వెనక్కి తీసుకోలేము.',
+      'set.resetDone': 'మొత్తం డేటా రీసెట్ అయింది', 'set.importConfirm': 'ఈ బ్యాకప్‌తో మొత్తం డేటా మార్చాలా?',
+      'set.importConfirmBody': 'ఈ బ్యాకప్ {d} నాటి డేటాను కలిగి ఉంది. దిగుమతి చేస్తే ఈ పరికరంలోని ప్రస్తుత డేటా అంతా మారిపోతుంది.',
+      'set.importDone': 'బ్యాకప్ పునఃస్థాపించబడింది', 'set.importBad': 'ఇది సరైన బ్యాకప్ ఫైల్ కాదు',
+      'set.deviceNote': 'వేర్వేరు పరికరాలు, వేర్వేరు డేటాబేస్‌లు',
+      'set.deviceNoteBody': 'డేటా అంతా ఈ పరికరంలోని ఈ బ్రౌజర్‌లో మాత్రమే నిల్వ అవుతుంది. ఈ యాప్‌ను నడిపే మరో ఫోన్ తన సొంత డేటాబేస్ కలిగి ఉంటుంది. భవిష్యత్ దశలో ఉమ్మడి బ్యాకెండ్ చేర్చకపోతే అంకెలు పరికరాల మధ్య సమకాలీకరించవు. డేటాను మార్చడానికి JSON బ్యాకప్ ఉపయోగించండి, బ్రౌజర్ డేటా తొలగించే ముందు బ్యాకప్ తీసుకోండి.',
+      'set.version': 'యాప్ వెర్షన్', 'set.security': 'నిర్వాహక పిన్', 'set.setPin': 'నిర్వాహక పిన్ ఏర్పాటు / మార్పు',
+      'set.clearPin': 'నిర్వాహక పిన్ తీసివేయి', 'set.pinActive': 'పరికర పిన్ ఏర్పాటు చేయబడింది', 'set.pinInactive': 'పిన్ లేదు - ఈ పరికరంలో నిర్వాహక మోడ్ రక్షణ లేకుండా ఉంది',
+      'set.future': 'భవిష్యత్ అభివృద్ధికి కేటాయించినవి',
+      'set.f.ocr': 'మొత్తం పత్ర గణాంకాల కోసం OCR', 'set.f.anon': 'అజ్ఞాత పత్ర ప్రాసెసింగ్ నమూనా',
+      'set.f.auth': 'సురక్షిత జట్టు ప్రామాణీకరణ', 'set.f.cloud': 'క్లౌడ్ డేటాబేస్',
+      'set.f.sync': 'తక్షణ మొత్తం సమకాలీకరణ', 'set.f.roles': 'పాత్ర ఆధారిత అనుమతులు',
+      'set.f.audit': 'ఆడిట్ లాగ్‌లు', 'set.f.pwa': 'ఇన్‌స్టాల్ చేయగల PWA',
+      'set.futureBody': 'ఇవి ఇంకా అమలు కాలేదు. పై విభాగాలు ప్రతి ఒక్కటి యాప్‌ను తిరగరాయకుండా చేర్చగలిగేలా నిర్మించబడ్డాయి.',
+      'set.partName': 'భాగం పేరు', 'set.partVoters': 'నమోదిత ఓటర్లు',
+      'set.errAbsentees': 'గైర్హాజరులు 0 మరియు నమోదిత మొత్తం ({n}) మధ్య ఉండాలి',
+      'set.errPartVoters': '0 లేదా ఎక్కువ ఓటర్ల సంఖ్య ఇవ్వండి', 'set.errPin': 'పిన్ 4-8 అంకెలు ఉండాలి',
+      'set.pinRemoved': 'నిర్వాహక పిన్ తీసివేయబడింది', 'set.candidateCount': '4 పోటీ అభ్యర్థులు'
+    }
+  };
+
+  var lang = 'en';
+  var listeners = [];
+
+  function t(key, vars) {
+    var table = DICT[lang] || DICT.en;
+    var s = table[key];
+    if (s == null) s = DICT.en[key];
+    if (s == null) return key;
+    if (vars) {
+      Object.keys(vars).forEach(function (k) {
+        s = s.split('{' + k + '}').join(String(vars[k]));
+      });
+    }
+    return s;
+  }
+
+  App.i18n = {
+    t: t,
+    get: function () { return lang; },
+    other: function () { return lang === 'en' ? 'te' : 'en'; },
+    set: function (next) {
+      if (!DICT[next]) return;
+      lang = next;
+      document.documentElement.setAttribute('lang', lang);
+      App.i18n.applyStatic();
+      listeners.forEach(function (fn) { fn(lang); });
+    },
+    onChange: function (fn) { listeners.push(fn); },
+    applyStatic: function () {
+      var nodes = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < nodes.length; i++) {
+        nodes[i].textContent = t(nodes[i].getAttribute('data-i18n'));
+      }
+      var ph = document.querySelectorAll('[data-i18n-ph]');
+      for (var j = 0; j < ph.length; j++) {
+        ph[j].setAttribute('placeholder', t(ph[j].getAttribute('data-i18n-ph')));
+      }
+    },
+    langs: Object.keys(DICT)
+  };
+})(window);

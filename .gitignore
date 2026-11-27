@@ -1,0 +1,8 @@
+# Draft electoral roll PDFs contain real voter personal data.
+# They stay on the device and are deliberately never committed.
+*.pdf
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
