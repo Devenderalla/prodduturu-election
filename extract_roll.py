@@ -62,13 +62,17 @@ def find_tesseract():
 
 
 # ---------------------------------------------------------------- parsing --
+# The label separator is a colon on the page, but OCR renders it as ?, ;, +,
+# * or # often enough that pinning it to ':' silently drops whole records.
+SEP = r'[\s:;.?!,*|+#=-]{0,4}'
+
 RE_SERIAL  = re.compile(r'^\s*(\d{1,4})\s*$')
 RE_SER_EPIC= re.compile(r'^\s*(\d{1,4})\s+([A-Z]{2,4}\d{6,9})\s*$')
-RE_NAME    = re.compile(r'^\s*Name\s*[:;.]\s*(.+?)\s*$', re.I)
-RE_REL     = re.compile(r'^\s*(Father|Mother|Husband|Wife|Other)s?\s*Name\s*[:;.]\s*(.+?)\s*$', re.I)
-RE_HOUSE   = re.compile(r'House\s*Number\s*[:;.]\s*(\S+)', re.I)
-RE_AGE     = re.compile(r'Age\s*[:;#.]?\s*(\d{1,3})', re.I)
-RE_GENDER  = re.compile(r'Gender\s*[:;+.]?\s*(Male|Female|Third)', re.I)
+RE_NAME    = re.compile(r'^\s*Name' + SEP + r'(.+?)\s*$', re.I)
+RE_REL     = re.compile(r'^\s*(Father|Mother|Husband|Wife|Other)s?\s*Name' + SEP + r'(.+?)\s*$', re.I)
+RE_HOUSE   = re.compile(r'House\s*Number' + SEP + r'(\S+)', re.I)
+RE_AGE     = re.compile(r'Age' + SEP + r'(\d{1,3})', re.I)
+RE_GENDER  = re.compile(r'Gender' + SEP + r'(Male|Female|Third)', re.I)
 RE_SECTION = re.compile(r'Section\s*No\s*and\s*Name\s*[:.]?\s*(.+?)\s*$', re.I)
 RE_EPIC_TOK= re.compile(r'^[A-Z]{2,4}[0-9]{6,9}$')
 
@@ -239,33 +243,64 @@ def page_anchors(tess, img, W):
 
 
 def fill_anchor_gaps(anchors):
-    """Recover a record box whose EPIC code was not detected.
+    """Reconstruct the full 3-column grid of record boxes for a page.
 
-    This matters for more than the missing row: serials are derived from each
-    box's index within its column, so one undetected box would shift every
-    serial below it by three. A missed box shows up as a vertical gap of
-    roughly twice the usual row pitch, so insert a placeholder there.
+    Boxes are found by their EPIC code, but OCR misses one occasionally.
+    That matters beyond the lost row: serials are derived from a box's index
+    within its column, so an undetected box shifts every serial below it.
+
+    Detected boxes are clustered into rows by their y position, and any
+    column with no box on a row gets a placeholder. A placeholder that turns
+    out to be empty - the tail of the final row, say - yields no fields when
+    OCR'd and is dropped, so over-filling is self-correcting while a missing
+    box is not.
     """
-    inserted = 0
+    all_y = sorted(y for col in (0, 1, 2) for (y, _) in anchors[col])
+    if len(all_y) < 4:
+        return anchors, 0
+
+    per_col_gaps = []
     for col in (0, 1, 2):
         ys = sorted(y for (y, _) in anchors[col])
-        if len(ys) < 3:
-            continue
-        gaps = sorted(ys[i + 1] - ys[i] for i in range(len(ys) - 1))
-        pitch = gaps[len(gaps) // 2]
-        if pitch <= 0:
-            continue
+        per_col_gaps += [ys[i + 1] - ys[i] for i in range(len(ys) - 1)]
+    if not per_col_gaps:
+        return anchors, 0
+    per_col_gaps.sort()
+    pitch = per_col_gaps[len(per_col_gaps) // 2]
+    if pitch <= 0:
+        return anchors, 0
+
+    # cluster the y positions into rows
+    tol = pitch * 0.45
+    rows = []
+    for y in all_y:
+        if rows and y - rows[-1][-1] <= tol:
+            rows[-1].append(y)
+        else:
+            rows.append([y])
+
+    # a row may itself be missing entirely between two detected rows
+    row_y = [sum(r) // len(r) for r in rows]
+    filled_rows = [row_y[0]]
+    for i in range(len(row_y) - 1):
+        gap = row_y[i + 1] - row_y[i]
+        extra = int(round(gap / float(pitch))) - 1
+        for k in range(1, min(extra, 3) + 1):
+            filled_rows.append(row_y[i] + int(pitch * k))
+        filled_rows.append(row_y[i + 1])
+
+    inserted = 0
+    for col in (0, 1, 2):
+        known = sorted(anchors[col])
         rebuilt = []
-        for i, y in enumerate(ys):
-            rebuilt.append(y)
-            if i + 1 < len(ys):
-                gap = ys[i + 1] - y
-                extra = int(round(gap / float(pitch))) - 1
-                for k in range(1, min(extra, 3) + 1):
-                    rebuilt.append(y + int(pitch * k))
-                    inserted += 1
-        known = dict(anchors[col])
-        anchors[col] = [(y, known.get(y)) for y in sorted(rebuilt)]
+        for ry in filled_rows:
+            match = [(y, sv) for (y, sv) in known if abs(y - ry) <= tol]
+            if match:
+                rebuilt.append(match[0])
+            else:
+                rebuilt.append((ry, None))
+                inserted += 1
+        anchors[col] = rebuilt
     return anchors, inserted
 
 
@@ -301,15 +336,22 @@ def solve_serials(anchors):
 
 def extract_pdf(tess, pdf_path, part, only_pages=None, quiet=False, debug=False):
     out = []
+    last_section = ['']
     for pageno, blob in page_jpegs(pdf_path):
         if only_pages and pageno not in only_pages:
             continue
         img = Image.open(io.BytesIO(blob))
         W, H = img.size
 
-        header = ocr(tess, img.crop((0, 0, W, int(H * 0.040))), psm='6')
+        header = ocr(tess, img.crop((0, 0, W, int(H * 0.055))), psm='6')
         msec = RE_SECTION.search(header)
-        section = msec.group(1).strip() if msec else ''
+        if msec:
+            section = msec.group(1).strip()
+            last_section[0] = section
+        else:
+            # sections run across several pages and the header does not always
+            # survive OCR; carry the last one forward rather than leaving blanks
+            section = last_section[0]
 
         anchors = page_anchors(tess, img, W)
         boxes = sum(len(v) for v in anchors.values())
@@ -327,10 +369,14 @@ def extract_pdf(tess, pdf_path, part, only_pages=None, quiet=False, debug=False)
                     continue
                 cell = img.crop((int(W * x0), top, int(W * x1), bottom))
 
-                # psm 6 reads the label lines most accurately; the serial is
-                # already known from the page anchors.
-                body = parse_strip('0\n' + ocr(tess, cell, psm='6'))
-                rec = body[0] if body else None
+                # psm 6 reads the label lines most accurately, but a box that
+                # defeats it often yields to a different segmentation mode.
+                rec = None
+                for psm in ('6', '4', '11'):
+                    body = parse_strip('0\n' + ocr(tess, cell, psm=psm))
+                    if body and body[0].get('name'):
+                        rec = body[0]
+                        break
                 if rec is None:
                     failed.append((col, y, 'no fields'))
                     continue
