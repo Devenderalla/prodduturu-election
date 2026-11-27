@@ -115,7 +115,14 @@
           return;
         }
         if (!results.length) {
-          resultsEl.innerHTML = U.empty(t('search.noResults'), t('search.noResultsSub'));
+          // The commonest reason a real name finds nothing is that this
+          // device never imported the roll - say so instead of a dead end.
+          resultsEl.innerHTML = U.empty(t('search.noResults'),
+            real ? t('search.englishOnly') : t('search.noRollHint'))
+            + (real ? '' : '<button class="btn btn-primary btn-block" id="goImport" style="margin-top:10px">'
+                + U.esc(t('set.rollImport')) + '</button>');
+          var gi = resultsEl.querySelector('#goImport');
+          if (gi) gi.addEventListener('click', function () { App.router.go('settings'); });
           return;
         }
         var out = '<div class="card"><div class="card-head"><h2>'
