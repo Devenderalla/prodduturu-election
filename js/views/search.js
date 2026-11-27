@@ -12,6 +12,7 @@
   var query = '';
   var partFilter = 'all';
   var browseLimit = 50;
+  var searchLimit = 50;
 
   App.views.search = {
     titleKey: 'nav.search',
@@ -88,9 +89,12 @@
       }
 
       function draw() {
-        var results = real
-          ? App.roll.search(query, { part: partFilter, limit: 30 })
+        var page = real
+          ? App.roll.find(query, { part: partFilter, limit: searchLimit })
+          : null;
+        var results = real ? page.items
           : App.demoVoters.search(query, { part: partFilter, limit: 30 });
+        var total = real ? page.total : results.length;
         if (query.trim().length < 2) {
           if (!real) {
             resultsEl.innerHTML = U.empty(t('search.start'), t('search.startSub'));
@@ -126,7 +130,9 @@
           return;
         }
         var out = '<div class="card"><div class="card-head"><h2>'
-          + U.esc(results.length === 1 ? t('search.resultsCountOne') : t('search.resultsCount', { n: results.length })) + '</h2>'
+          + U.esc(results.length < total
+              ? t('search.showingOf', { a: U.fmtInt(results.length), b: U.fmtInt(total) })
+              : (total === 1 ? t('search.resultsCountOne') : t('search.resultsCount', { n: U.fmtInt(total) }))) + '</h2>'
           + '<span class="badge ' + (real ? 'badge-official' : 'badge-demo') + '">'
           + U.esc(real ? t('common.official') : t('common.demo')) + '</span></div><div class="list">';
         results.forEach(function (r) {
@@ -145,13 +151,20 @@
             + '<span class="badge badge-demo">' + U.esc(t('common.demo')) + '</span>'
             + '</div>';
         });
+        if (results.length < total) {
+          out += '<button class="btn btn-ghost btn-block" id="moreHits" style="margin-top:10px">'
+            + U.esc(t('search.loadMore')) + '</button>';
+        }
         out += '</div></div>';
         resultsEl.innerHTML = out;
+        var mh = resultsEl.querySelector('#moreHits');
+        if (mh) mh.addEventListener('click', function () { searchLimit += 100; draw(); });
       }
 
       var debounce = null;
       input.addEventListener('input', function () {
         query = input.value;
+        searchLimit = 50;
         if (debounce) clearTimeout(debounce);
         debounce = setTimeout(draw, 120);
       });
@@ -169,6 +182,7 @@
         btn.addEventListener('click', function () {
           partFilter = btn.getAttribute('data-part');
           browseLimit = 50;
+          searchLimit = 50;
           root.querySelectorAll('[data-part]').forEach(function (b) { b.classList.remove('is-active'); });
           btn.classList.add('is-active');
           draw();

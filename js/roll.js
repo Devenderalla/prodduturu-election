@@ -115,6 +115,37 @@
       return { total: pool.length, items: pool.slice(0, limit) };
     },
 
+    /**
+     * Full result set for a query, with the total before any cap.
+     * The UI needs the real total: reporting a capped count as if it were
+     * the whole answer hides records from the person searching.
+     */
+    find: function (query, opts) {
+      opts = opts || {};
+      if (!App.roll.isLoaded()) return { total: 0, items: [] };
+      var q = normalise(query);
+      if (q.length < 2) return { total: 0, items: [] };
+      var part = opts.part && opts.part !== 'all' ? String(opts.part) : null;
+      var digits = /^[0-9]+$/.test(q);
+      var recs = loaded.records, hits = [];
+
+      for (var i = 0; i < recs.length; i++) {
+        var r = recs[i];
+        if (part && r.part !== part) continue;
+        if (digits) {
+          if (String(r.serial) === q || String(r.serial).indexOf(q) === 0) hits.push(r);
+        } else if (index[i].indexOf(q) >= 0) {
+          hits.push(r);
+        }
+      }
+      hits.sort(function (a, b) {
+        if (a.part !== b.part) return a.part < b.part ? -1 : 1;
+        return a.serial - b.serial;
+      });
+      var limit = opts.limit || 50;
+      return { total: hits.length, items: hits.slice(0, limit) };
+    },
+
     search: function (query, opts) {
       opts = opts || {};
       if (!App.roll.isLoaded()) return [];

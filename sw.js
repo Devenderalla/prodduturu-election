@@ -1,6 +1,6 @@
 /* Service worker: cache-first shell so the app opens with no network.
    Bump CACHE on every release so phones pick up new code. */
-var CACHE = 'prodduturu-election-v1.1.2';
+var CACHE = 'prodduturu-election-v1.1.3';
 var ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/styles.css',
