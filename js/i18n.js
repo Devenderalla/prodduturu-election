@@ -67,7 +67,7 @@
       'dash.voted': 'Voted (aggregate)', 'dash.notVoted': 'Not yet recorded', 'dash.absent': 'Expected absent',
       'dash.rollSource': 'Draft electoral rolls', 'dash.rollNote': 'Original estimate was {n} voters. Draft rolls supplied list {m}. Set the final official count in Settings after verification.',
       'dash.noTurnout': 'No turnout readings yet', 'dash.noTurnoutSub': 'Add an aggregate hourly reading in the Turnout module.',
-      'dash.quick': 'Quick actions', 'dash.statusFinal': 'Final result declared', 'dash.statusCounting': 'Counting in progress',
+      'dash.quick': 'Quick actions', 'dash.noRoll': 'No voter roll on this device', 'dash.noRollBody': 'Voter search is showing 48 demonstration records. Import roll.json to search the real 2,114 voters. The roll is never on the website - every phone imports it once.', 'dash.importNow': 'Import voter roll', 'dash.rollOk': '{n} voters loaded on this device', 'dash.statusFinal': 'Final result declared', 'dash.statusCounting': 'Counting in progress',
       'dash.statusNotStarted': 'Counting not started',
 
       'search.title': 'Voter search demonstration', 'search.placeholder': 'Name or serial number',
@@ -226,7 +226,7 @@
       'dash.voted': 'ఓటు వేసినవారు (మొత్తం)', 'dash.notVoted': 'ఇంకా నమోదు కాలేదు', 'dash.absent': 'అంచనా గైర్హాజరు',
       'dash.rollSource': 'ముసాయిదా ఓటరు జాబితాలు', 'dash.rollNote': 'మొదటి అంచనా {n} ఓటర్లు. అందించిన ముసాయిదా జాబితాలలో {m} ఉన్నారు. ధృవీకరణ తర్వాత తుది అధికారిక సంఖ్యను సెట్టింగ్‌లలో నమోదు చేయండి.',
       'dash.noTurnout': 'ఇంకా ఓటింగ్ నమోదులు లేవు', 'dash.noTurnoutSub': 'ఓటింగ్ విభాగంలో గంటవారీ నమోదు చేర్చండి.',
-      'dash.quick': 'త్వరిత చర్యలు', 'dash.statusFinal': 'తుది ఫలితం ప్రకటించబడింది', 'dash.statusCounting': 'లెక్కింపు జరుగుతోంది',
+      'dash.quick': 'త్వరిత చర్యలు', 'dash.noRoll': 'ఈ పరికరంలో ఓటరు జాబితా లేదు', 'dash.noRollBody': 'ఓటరు శోధన 48 నమూనా రికార్డులను చూపుతోంది. నిజమైన 2,114 ఓటర్ల కోసం roll.json దిగుమతి చేయండి. జాబితా వెబ్‌సైట్‌లో ఉండదు - ప్రతి ఫోన్ ఒకసారి దిగుమతి చేసుకోవాలి.', 'dash.importNow': 'ఓటరు జాబితా దిగుమతి', 'dash.rollOk': 'ఈ పరికరంలో {n} ఓటర్లు ఉన్నారు', 'dash.statusFinal': 'తుది ఫలితం ప్రకటించబడింది', 'dash.statusCounting': 'లెక్కింపు జరుగుతోంది',
       'dash.statusNotStarted': 'లెక్కింపు ప్రారంభం కాలేదు',
 
       'search.title': 'ఓటరు శోధన ప్రదర్శన', 'search.placeholder': 'పేరు లేదా క్రమ సంఖ్య',

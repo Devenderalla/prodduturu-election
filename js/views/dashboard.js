@@ -30,6 +30,20 @@
 
       var html = '<div class="stack">';
 
+      /* ---- roll status, first thing on the screen ----
+         The commonest confusion is a device searching the demo records
+         without realising the real roll was never imported on it. */
+      if (App.roll.isLoaded()) {
+        html += '<div class="notice notice-accent"><div><b>'
+          + U.esc(t('dash.rollOk', { n: U.fmtInt(App.roll.count()) })) + '</b></div></div>';
+      } else {
+        html += '<div class="card" style="border-color:var(--warn)">'
+          + '<div class="notice notice-warn"><div><b>' + U.esc(t('dash.noRoll')) + '</b><br>'
+          + U.esc(t('dash.noRollBody')) + '</div></div>'
+          + '<button class="btn btn-primary btn-block" id="dashImport" style="margin-top:12px">'
+          + U.esc(t('dash.importNow')) + '</button></div>';
+      }
+
       /* ---- status + election identity ---- */
       html += '<div class="card">'
         + '<div class="card-head"><div><h2>' + U.esc(t('app.electionType')) + '</h2>'
@@ -143,6 +157,9 @@
 
       html += '</div>';
       root.innerHTML = html;
+
+      var di = root.querySelector('#dashImport');
+      if (di) di.addEventListener('click', function () { App.router.go('settings'); });
 
       root.querySelectorAll('[data-goto]').forEach(function (btn) {
         btn.addEventListener('click', function () { App.router.go(btn.getAttribute('data-goto')); });
