@@ -11,6 +11,7 @@
 
   var query = '';
   var partFilter = 'all';
+  var browseLimit = 50;
 
   App.views.search = {
     titleKey: 'nav.search',
@@ -30,7 +31,8 @@
 
       var real = App.roll.isLoaded();
       html += real
-        ? '<div class="notice notice-accent"><div><b>' + U.esc(t('search.realBanner')) + '</b><br>'
+        ? '<div class="notice notice-accent"><div><b>'
+          + U.esc(t('search.loadedCount', { n: U.fmtInt(App.roll.count()) })) + '</b><br>'
           + U.esc(t('search.realBannerBody')) + '</div></div>'
         : '<div class="notice notice-warn"><div><b>' + U.esc(t('search.demoBanner')) + '</b><br>'
           + U.esc(t('search.demoBannerBody')) + '</div></div>';
@@ -71,12 +73,45 @@
       var input = root.querySelector('#voterQuery');
       var resultsEl = root.querySelector('#searchResults');
 
+      function rowHtml(r) {
+        var extra = [];
+        if (r.relName) extra.push(U.esc(r.relType || '') + ': ' + U.esc(r.relName));
+        if (r.house) extra.push(U.esc(t('search.house')) + ' ' + U.esc(r.house));
+        if (r.age) extra.push(U.esc(r.age) + ' · ' + U.esc(r.gender || ''));
+        return '<div class="list-item"><div class="li-main">'
+          + '<div class="li-title">' + U.esc(r.name) + '</div>'
+          + (extra.length ? '<div class="li-meta">' + extra.join(' · ') + '</div>' : '')
+          + '<div class="li-meta">' + U.esc(t('search.serial')) + ' <b>' + U.esc(r.serial) + '</b>'
+          + ' · ' + U.esc(t('common.part')) + ' <b>' + U.esc(r.part) + '</b>'
+          + (r.section ? ' · ' + U.esc(r.section) : '')
+          + '</div></div></div>';
+      }
+
       function draw() {
         var results = real
           ? App.roll.search(query, { part: partFilter, limit: 30 })
           : App.demoVoters.search(query, { part: partFilter, limit: 30 });
         if (query.trim().length < 2) {
-          resultsEl.innerHTML = U.empty(t('search.start'), t('search.startSub'));
+          if (!real) {
+            resultsEl.innerHTML = U.empty(t('search.start'), t('search.startSub'));
+            return;
+          }
+          // With a roll loaded, show it rather than an empty box: a volunteer
+          // often wants to scroll a part, not guess at a spelling.
+          var page = App.roll.list({ part: partFilter, limit: browseLimit });
+          var bout = '<div class="card"><div class="card-head"><h2>'
+            + U.esc(t('search.showingOf', { a: U.fmtInt(page.items.length), b: U.fmtInt(page.total) }))
+            + '</h2><span class="badge badge-official">' + U.esc(t('common.official')) + '</span></div>'
+            + '<p class="card-sub" style="margin-bottom:10px">' + U.esc(t('search.browseHint')) + '</p>'
+            + '<div class="list">' + page.items.map(rowHtml).join('') + '</div>';
+          if (page.items.length < page.total) {
+            bout += '<button class="btn btn-ghost btn-block" id="moreBtn" style="margin-top:10px">'
+              + U.esc(t('search.loadMore')) + '</button>';
+          }
+          bout += '</div>';
+          resultsEl.innerHTML = bout;
+          var mb = resultsEl.querySelector('#moreBtn');
+          if (mb) mb.addEventListener('click', function () { browseLimit += 100; draw(); });
           return;
         }
         if (!results.length) {
@@ -88,20 +123,7 @@
           + '<span class="badge ' + (real ? 'badge-official' : 'badge-demo') + '">'
           + U.esc(real ? t('common.official') : t('common.demo')) + '</span></div><div class="list">';
         results.forEach(function (r) {
-          if (real) {
-            var extra = [];
-            if (r.relName) extra.push(U.esc(r.relType || '') + ': ' + U.esc(r.relName));
-            if (r.house) extra.push(U.esc(t('search.house')) + ' ' + U.esc(r.house));
-            if (r.age) extra.push(U.esc(r.age) + ' · ' + U.esc(r.gender || ''));
-            out += '<div class="list-item"><div class="li-main">'
-              + '<div class="li-title">' + U.esc(r.name) + '</div>'
-              + (extra.length ? '<div class="li-meta">' + extra.join(' · ') + '</div>' : '')
-              + '<div class="li-meta">' + U.esc(t('search.serial')) + ' <b>' + U.esc(r.serial) + '</b>'
-              + ' · ' + U.esc(t('common.part')) + ' <b>' + U.esc(r.part) + '</b>'
-              + (r.section ? ' · ' + U.esc(r.section) : '')
-              + '</div></div></div>';
-            return;
-          }
+          if (real) { out += rowHtml(r); return; }
           var shown = lang === 'te' && r.nameTe ? r.nameTe : r.name;
           var secondary = lang === 'te' && r.nameTe ? r.name : r.nameTe;
           out += '<div class="list-item"><div class="li-main">'
@@ -139,6 +161,7 @@
       root.querySelectorAll('[data-part]').forEach(function (btn) {
         btn.addEventListener('click', function () {
           partFilter = btn.getAttribute('data-part');
+          browseLimit = 50;
           root.querySelectorAll('[data-part]').forEach(function (b) { b.classList.remove('is-active'); });
           btn.classList.add('is-active');
           draw();

@@ -95,6 +95,26 @@
       });
     },
 
+    /**
+     * Browse the roll with no query, so a volunteer can scroll a part
+     * instead of having to guess a spelling. Paged: 2,000+ rows at once
+     * is slow on a cheap phone.
+     */
+    list: function (opts) {
+      opts = opts || {};
+      if (!App.roll.isLoaded()) return { total: 0, items: [] };
+      var part = opts.part && opts.part !== 'all' ? String(opts.part) : null;
+      var pool = part
+        ? loaded.records.filter(function (r) { return r.part === part; })
+        : loaded.records.slice();
+      pool.sort(function (a, b) {
+        if (a.part !== b.part) return a.part < b.part ? -1 : 1;
+        return a.serial - b.serial;
+      });
+      var limit = opts.limit || 50;
+      return { total: pool.length, items: pool.slice(0, limit) };
+    },
+
     search: function (query, opts) {
       opts = opts || {};
       if (!App.roll.isLoaded()) return [];
