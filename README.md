@@ -67,6 +67,16 @@ Bottom navigation, seven modules:
 
 ## 4. Election figures as shipped
 
+All roll figures below were read off the **SUMMARY OF ELECTORS** page of each supplied
+draft-roll PDF (Assembly Constituency **78-Penamaluru**, *Draft Electoral Roll of Special
+Intensive Revision, 2026*, age as on 01-07-2026, published 31-07-2026):
+
+| Part | Male | Female | Third gender | **Total** |
+|---|---|---|---|---|
+| Part 235 | 522 | 574 | 0 | **1,096** |
+| Part 236 | 490 | 528 | 0 | **1,018** |
+| **Total** | **1,012** | **1,102** | **0** | **2,114** |
+
 | Figure | Value | Where to change |
 |---|---|---|
 | Original estimated voters | 2,700 | Settings → Election configuration |
@@ -145,6 +155,12 @@ The volunteer search operates on **48 fictional demonstration records** in
 in this phase, and the supplied draft-roll PDFs are excluded from version control by
 `.gitignore` because they contain real voter personal data.
 
+**About the supplied PDFs.** Both are *scanned images* — 42 and 41 pages, one JPEG per
+page, with no embedded text layer at all. Only the aggregate summary figures above were
+taken from them (counts, constituency, publication dates); no elector record was read into
+the app. Turning the scans into searchable records would require genuine OCR of ~83 scanned
+pages, which is exactly the work the brief defers to a future phase.
+
 Analytics scenarios are labelled **HYPOTHETICAL** and are plain arithmetic on assumptions
 the user types in. They are never attributed to a candidate, so the module cannot and does
 not output a winner prediction. The Results module stores only counts that have been
@@ -196,4 +212,6 @@ Rendered in Chrome 157 at 360×740 and 390×844:
 - votes 312/255/140/88 → 795 valid, 57 margin, shares 39.2/32.1/17.6/11.1% — correct;
 - validation blocks counts above a part's ceiling and cumulative counts that go backwards;
 - expense entry, category chart and totals correct;
-- JSON backup → reset → restore round-trips every figure exactly.
+- JSON backup → reset → restore round-trips every figure exactly;
+- part gender counts sum exactly to the part totals and to 2,114;
+- backups written before the gender fields existed still import cleanly.

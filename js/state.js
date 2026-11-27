@@ -29,14 +29,20 @@
         district: 'NTR',
         state: 'Andhra Pradesh',
         type: 'Village President (Sarpanch)',
+        ac: '78-Penamaluru',
+        rollId: 'Draft Electoral Roll of Special Intensive Revision, 2026',
+        rollPublished: '2026-07-31',
+        ageAsOn: '2026-07-01',
         pollDate: '',
         originalEstimate: 2700,     // original estimated voter count
         officialTotal: null,        // set after verification of the final roll
         useOfficialTotal: false,
         expectedAbsentees: 300,     // editable
+        /* Verified 2026-11-27 against the SUMMARY OF ELECTORS page of each
+           supplied draft-roll PDF. Aggregate counts only - no elector records. */
         parts: [
-          { id: '235', name: 'Part 235', voters: 1096 },
-          { id: '236', name: 'Part 236', voters: 1018 }
+          { id: '235', name: 'Part 235', voters: 1096, male: 522, female: 574, thirdGender: 0 },
+          { id: '236', name: 'Part 236', voters: 1018, male: 490, female: 528, thirdGender: 0 }
         ]
       },
       candidates: [
@@ -80,7 +86,8 @@
       if (raw.settings.adminPin && raw.settings.adminPin.hash) s.settings.adminPin = raw.settings.adminPin;
     }
     if (raw.election) {
-      ['village', 'mandal', 'district', 'state', 'type', 'pollDate'].forEach(function (k) {
+      ['village', 'mandal', 'district', 'state', 'type', 'pollDate',
+       'ac', 'rollId', 'rollPublished', 'ageAsOn'].forEach(function (k) {
         if (typeof raw.election[k] === 'string') s.election[k] = raw.election[k];
       });
       if (raw.election.originalEstimate != null) s.election.originalEstimate = Math.max(0, Math.round(num(raw.election.originalEstimate, 2700)));
@@ -92,7 +99,10 @@
           return {
             id: String(p.id != null ? p.id : i + 1),
             name: String(p.name || ('Part ' + (p.id != null ? p.id : i + 1))),
-            voters: Math.max(0, Math.round(num(p.voters, 0)))
+            voters: Math.max(0, Math.round(num(p.voters, 0))),
+            male: Math.max(0, Math.round(num(p.male, 0))),
+            female: Math.max(0, Math.round(num(p.female, 0))),
+            thirdGender: Math.max(0, Math.round(num(p.thirdGender, 0)))
           };
         });
       }
@@ -170,6 +180,15 @@
   function draftTotal() {
     return state.election.parts.reduce(function (s, p) { return s + p.voters; }, 0);
   }
+  /* Aggregate gender totals as printed on the official roll summary pages. */
+  function genderTotals() {
+    return state.election.parts.reduce(function (acc, p) {
+      acc.male += num(p.male, 0);
+      acc.female += num(p.female, 0);
+      acc.thirdGender += num(p.thirdGender, 0);
+      return acc;
+    }, { male: 0, female: 0, thirdGender: 0 });
+  }
   function totalVoters() {
     var e = state.election;
     if (e.useOfficialTotal && e.officialTotal != null && e.officialTotal > 0) return e.officialTotal;
@@ -229,6 +248,7 @@
 
   var derived = {
     draftTotal: draftTotal,
+    genderTotals: genderTotals,
     totalVoters: totalVoters,
     expectedTurnout: expectedTurnout,
     expectedTurnoutPct: function () { return pct(expectedTurnout(), totalVoters()); },

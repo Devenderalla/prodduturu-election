@@ -84,19 +84,41 @@
         + '<span class="hint">' + U.esc(t('dash.rollSource')) + '</span></div>'
         + '<div class="table-scroll"><table><thead><tr>'
         + '<th>' + U.esc(t('common.part')) + '</th><th>' + U.esc(t('common.voters')) + '</th>'
+        + '<th>' + U.esc(t('common.male')) + '</th><th>' + U.esc(t('common.female')) + '</th>'
         + '<th>' + U.esc(t('turnout.actual')) + '</th><th>%</th></tr></thead><tbody>';
       S.election.parts.forEach(function (p) {
         var pt = d.partTurnout(p.id);
         html += '<tr><td>' + U.esc(p.name) + '</td><td><b>' + U.fmtInt(p.voters) + '</b></td>'
+          + '<td>' + U.fmtInt(p.male) + '</td><td>' + U.fmtInt(p.female) + '</td>'
           + '<td><b>' + U.fmtInt(pt) + '</b></td><td>' + U.fmtPct(d.pct(pt, p.voters)) + '</td></tr>';
       });
+      var gt = d.genderTotals();
       html += '<tr style="border-top:2px solid var(--line-strong)"><td><b>' + U.esc(t('common.total')) + '</b></td>'
-        + '<td><b>' + U.fmtInt(d.draftTotal()) + '</b></td><td><b>' + U.fmtInt(actual) + '</b></td>'
+        + '<td><b>' + U.fmtInt(d.draftTotal()) + '</b></td>'
+        + '<td><b>' + U.fmtInt(gt.male) + '</b></td><td><b>' + U.fmtInt(gt.female) + '</b></td>'
+        + '<td><b>' + U.fmtInt(actual) + '</b></td>'
         + '<td><b>' + U.fmtPct(d.pct(actual, d.draftTotal())) + '</b></td></tr>';
       html += '</tbody></table></div>';
+      html += '<div class="notice notice-accent" style="margin-top:10px"><div>'
+        + U.esc(t('set.verifiedRoll')) + '</div></div>';
       html += '<div class="notice notice-info" style="margin-top:10px"><div>'
         + U.esc(t('dash.rollNote', { n: U.fmtInt(S.election.originalEstimate), m: U.fmtInt(d.draftTotal()) }))
         + '</div></div></div>';
+
+      /* ---- gender breakdown (aggregate, from the official summary) ---- */
+      var g = d.genderTotals();
+      if (g.male + g.female + g.thirdGender > 0) {
+        var gsegs = [
+          { label: t('common.male'), value: g.male, color: 'var(--c1)' },
+          { label: t('common.female'), value: g.female, color: 'var(--c4)' }
+        ];
+        if (g.thirdGender > 0) gsegs.push({ label: t('common.thirdGender'), value: g.thirdGender, color: 'var(--c3)' });
+        html += '<div class="card"><div class="card-head"><h2>' + U.esc(t('dash.genderBreakdown')) + '</h2>'
+          + '<span class="badge badge-official">' + U.esc(t('common.official')) + '</span></div>'
+          + '<div class="chart-wrap" style="max-width:210px;margin:0 auto">'
+          + C.donut(gsegs, { centerValue: U.fmtInt(g.male + g.female + g.thirdGender), centerLabel: t('common.voters'), ariaLabel: t('dash.genderBreakdown') })
+          + '</div>' + C.legend(gsegs) + '</div>';
+      }
 
       /* ---- latest reading / empty state ---- */
       if (latest) {

@@ -45,8 +45,9 @@
     chip.textContent = t(isAdmin ? 'mode.admin' : 'mode.volunteer');
     chip.className = 'chip ' + (isAdmin ? 'chip-admin' : 'chip-mode');
     document.getElementById('storageChip').textContent = App.db.engine();
-    document.getElementById('updatedChip').textContent =
-      t('common.lastUpdated') + ': ' + App.ui.fmtDateTime(S.updatedAt);
+    var upd = document.getElementById('updatedChip');
+    upd.textContent = App.ui.fmtDateTime(S.updatedAt);
+    upd.setAttribute('title', t('common.lastUpdated'));
     document.getElementById('langBtnLabel').textContent = App.i18n.get() === 'en' ? 'తె' : 'EN';
     document.getElementById('modeBtn').setAttribute('title',
       t(isAdmin ? 'mode.switchToVolunteer' : 'mode.switchToAdmin'));

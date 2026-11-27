@@ -60,6 +60,10 @@
         + U.fieldText('pn_' + p.id, t('set.partName'), p.name, { maxlength: 40 })
         + '<div style="height:8px"></div>'
         + U.fieldNumber('pv_' + p.id, t('set.partVoters'), p.voters, { min: 0 })
+        + '<div style="height:8px"></div>'
+        + U.fieldNumber('pm_' + p.id, t('common.male'), p.male, { min: 0 })
+        + '<div style="height:8px"></div>'
+        + U.fieldNumber('pf_' + p.id, t('common.female'), p.female, { min: 0 })
         + '</div>';
     });
     body += '<p class="help">' + U.esc(t('set.officialHelp')) + '</p></div>';
@@ -75,12 +79,17 @@
           var v = U.intVal('pv_' + p.id);
           if (v === null) v = 0;
           if (isNaN(v) || v < 0) { U.showErr('pv_' + p.id, t('set.errPartVoters')); ok = false; }
-          next[p.id] = { name: name, voters: v };
+          var mv = U.intVal('pm_' + p.id); if (mv === null || isNaN(mv) || mv < 0) mv = 0;
+          var fv = U.intVal('pf_' + p.id); if (fv === null || isNaN(fv) || fv < 0) fv = 0;
+          next[p.id] = { name: name, voters: v, male: mv, female: fv };
         });
         if (!ok) return false;
         App.state.mutate(function (st) {
           st.election.parts.forEach(function (p) {
-            if (next[p.id]) { p.name = next[p.id].name; p.voters = next[p.id].voters; }
+            if (next[p.id]) {
+              p.name = next[p.id].name; p.voters = next[p.id].voters;
+              p.male = next[p.id].male; p.female = next[p.id].female;
+            }
           });
           // keep absentees inside the new ceiling
           var tot = st.election.parts.reduce(function (s, p) { return s + p.voters; }, 0);
@@ -125,6 +134,9 @@
     rows.push(['Generated', new Date().toISOString()]);
     rows.push(['Village', S.election.village, 'Mandal', S.election.mandal, 'State', S.election.state]);
     rows.push(['Election', S.election.type, 'Polling date', S.election.pollDate || '']);
+    rows.push(['Assembly constituency', S.election.ac || '']);
+    rows.push(['Roll identification', S.election.rollId || '']);
+    rows.push(['Roll published', S.election.rollPublished || '', 'Age as on', S.election.ageAsOn || '']);
     rows.push([]);
     rows.push(['AGGREGATE FIGURES']);
     rows.push(['Metric', 'Value']);
@@ -143,11 +155,13 @@
     rows.push(['Counting status', S.counting.status]);
     rows.push([]);
     rows.push(['ELECTORAL ROLL PARTS']);
-    rows.push(['Part', 'Registered voters', 'Aggregate turnout', 'Turnout %']);
+    rows.push(['Part', 'Registered voters', 'Male', 'Female', 'Third gender', 'Aggregate turnout', 'Turnout %']);
     S.election.parts.forEach(function (p) {
       var pt = d.partTurnout(p.id);
-      rows.push([p.name, p.voters, pt, d.pct(pt, p.voters).toFixed(2)]);
+      rows.push([p.name, p.voters, p.male, p.female, p.thirdGender, pt, d.pct(pt, p.voters).toFixed(2)]);
     });
+    var gt = d.genderTotals();
+    rows.push(['Total', d.draftTotal(), gt.male, gt.female, gt.thirdGender, d.actualTurnout(), d.actualTurnoutPct().toFixed(2)]);
     rows.push([]);
     rows.push(['CANDIDATES (officially reported counts)']);
     rows.push(['Candidate', 'Symbol', 'Reported votes', 'Vote share %']);
@@ -236,6 +250,20 @@
         + row(t('turnout.pollDate'), S.election.pollDate ? U.fmtDate(S.election.pollDate) : t('common.notSet'))
         + '</tbody></table></div></div>';
 
+      /* ---- official roll details ---- */
+      html += '<div class="card"><div class="card-head"><h2>' + U.esc(t('set.rollMeta')) + '</h2>'
+        + '<span class="badge badge-official">' + U.esc(t('common.official')) + '</span></div>'
+        + '<div class="table-scroll"><table><tbody>'
+        + row(t('set.ac'), S.election.ac || t('common.notSet'))
+        + row(t('set.rollId'), S.election.rollId || t('common.notSet'), false, true)
+        + row(t('set.rollPublished'), S.election.rollPublished ? U.fmtDate(S.election.rollPublished) : t('common.notSet'))
+        + row(t('set.ageAsOn'), S.election.ageAsOn ? U.fmtDate(S.election.ageAsOn) : t('common.notSet'))
+        + row(t('common.male'), U.fmtInt(d.genderTotals().male))
+        + row(t('common.female'), U.fmtInt(d.genderTotals().female))
+        + '</tbody></table></div>'
+        + '<div class="notice notice-accent" style="margin-top:10px"><div>' + U.esc(t('set.verifiedRoll')) + '</div></div>'
+        + '</div>';
+
       /* ---- parts ---- */
       html += '<div class="card"><div class="card-head"><h2>' + U.esc(t('set.rollParts')) + '</h2>'
         + (U.isAdmin() ? '<button class="btn btn-sm btn-ghost" id="editParts">' + U.esc(t('common.edit')) + '</button>' : '')
@@ -314,9 +342,9 @@
       html += '</div>';
       root.innerHTML = html;
 
-      function row(label, value, raw) {
+      function row(label, value, raw, wrap) {
         return '<tr><td style="color:var(--ink-2)">' + (raw ? label : U.esc(label)) + '</td>'
-          + '<td><b>' + (raw ? value : U.esc(value)) + '</b></td></tr>';
+          + '<td' + (wrap ? ' class="wrap"' : '') + '><b>' + (raw ? value : U.esc(value)) + '</b></td></tr>';
       }
 
       /* ---- wiring ---- */
