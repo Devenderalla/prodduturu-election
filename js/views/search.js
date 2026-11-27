@@ -14,6 +14,9 @@
 
   App.views.search = {
     titleKey: 'nav.search',
+    titleKeyFor: function () {
+      return App.roll.isLoaded() ? 'nav.searchReal' : 'nav.search';
+    },
 
     render: function (root) {
       var U = App.ui, t = U.t, S = App.state.get();
@@ -25,18 +28,23 @@
 
       var html = '<div class="stack">';
 
-      html += '<div class="notice notice-warn"><div><b>' + U.esc(t('search.demoBanner')) + '</b><br>'
-        + U.esc(t('search.demoBannerBody')) + '</div></div>';
+      var real = App.roll.isLoaded();
+      html += real
+        ? '<div class="notice notice-accent"><div><b>' + U.esc(t('search.realBanner')) + '</b><br>'
+          + U.esc(t('search.realBannerBody')) + '</div></div>'
+        : '<div class="notice notice-warn"><div><b>' + U.esc(t('search.demoBanner')) + '</b><br>'
+          + U.esc(t('search.demoBannerBody')) + '</div></div>';
 
       html += '<div class="card">'
-        + '<div class="card-head"><div><h2>' + U.esc(t('search.title')) + '</h2>'
-        + '<p class="card-sub">' + U.esc(t('search.hint')) + '</p></div>'
-        + '<span class="badge badge-demo">' + U.esc(t('common.demo')) + '</span></div>'
+        + '<div class="card-head"><div><h2>' + U.esc(real ? t('search.titleReal') : t('search.title')) + '</h2>'
+        + '<p class="card-sub">' + U.esc(real ? t('search.hintReal') : t('search.hint')) + '</p></div>'
+        + '<span class="badge ' + (real ? 'badge-official' : 'badge-demo') + '">'
+        + U.esc(real ? t('search.sourceReal') : t('search.sourceDemo')) + '</span></div>'
         + '<div class="search-wrap">'
         + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 1-4.9 14.3l-3 3-1.4-1.4 3-3A8 8 0 0 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>'
         + '<input id="voterQuery" type="search" inputmode="search" autocomplete="off" enterkeyhint="search"'
-        + ' aria-label="' + U.esc(t('search.placeholder')) + '"'
-        + ' placeholder="' + U.esc(t('search.placeholder')) + '" value="' + U.esc(query) + '">'
+        + ' aria-label="' + U.esc(real ? t('search.realPlaceholder') : t('search.placeholder')) + '"'
+        + ' placeholder="' + U.esc(real ? t('search.realPlaceholder') : t('search.placeholder')) + '" value="' + U.esc(query) + '">'
         + '</div>'
         + '<div style="height:10px"></div>'
         + '<div class="seg" role="group" aria-label="' + U.esc(t('common.part')) + '">'
@@ -64,7 +72,9 @@
       var resultsEl = root.querySelector('#searchResults');
 
       function draw() {
-        var results = App.demoVoters.search(query, { part: partFilter, limit: 30 });
+        var results = real
+          ? App.roll.search(query, { part: partFilter, limit: 30 })
+          : App.demoVoters.search(query, { part: partFilter, limit: 30 });
         if (query.trim().length < 2) {
           resultsEl.innerHTML = U.empty(t('search.start'), t('search.startSub'));
           return;
@@ -74,9 +84,24 @@
           return;
         }
         var out = '<div class="card"><div class="card-head"><h2>'
-          + U.esc(t('search.resultsCount', { n: results.length })) + '</h2>'
-          + '<span class="badge badge-demo">' + U.esc(t('common.demo')) + '</span></div><div class="list">';
+          + U.esc(results.length === 1 ? t('search.resultsCountOne') : t('search.resultsCount', { n: results.length })) + '</h2>'
+          + '<span class="badge ' + (real ? 'badge-official' : 'badge-demo') + '">'
+          + U.esc(real ? t('common.official') : t('common.demo')) + '</span></div><div class="list">';
         results.forEach(function (r) {
+          if (real) {
+            var extra = [];
+            if (r.relName) extra.push(U.esc(r.relType || '') + ': ' + U.esc(r.relName));
+            if (r.house) extra.push(U.esc(t('search.house')) + ' ' + U.esc(r.house));
+            if (r.age) extra.push(U.esc(r.age) + ' · ' + U.esc(r.gender || ''));
+            out += '<div class="list-item"><div class="li-main">'
+              + '<div class="li-title">' + U.esc(r.name) + '</div>'
+              + (extra.length ? '<div class="li-meta">' + extra.join(' · ') + '</div>' : '')
+              + '<div class="li-meta">' + U.esc(t('search.serial')) + ' <b>' + U.esc(r.serial) + '</b>'
+              + ' · ' + U.esc(t('common.part')) + ' <b>' + U.esc(r.part) + '</b>'
+              + (r.section ? ' · ' + U.esc(r.section) : '')
+              + '</div></div></div>';
+            return;
+          }
           var shown = lang === 'te' && r.nameTe ? r.nameTe : r.name;
           var secondary = lang === 'te' && r.nameTe ? r.name : r.nameTe;
           out += '<div class="list-item"><div class="li-main">'

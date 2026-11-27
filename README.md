@@ -170,6 +170,61 @@ memory. The engine in use is shown in the header and in Settings.
 
 ---
 
+## 6b. Loading the real electoral roll (optional, stays on your device)
+
+Out of the box the volunteer search uses 48 fictional records. To search the **real**
+draft roll, generate `roll.json` on your own machine and import it into each phone.
+
+**The roll must never go into this repository or onto the public site.** It holds names,
+relatives' names, house numbers and ages for ~2,114 people. Electoral rolls are supplied to
+candidates for election use, not for publication, and this repo is public. `roll.json` is
+listed in `.gitignore` — keep it that way.
+
+### 1. Generate it
+
+Put the two draft-roll PDFs in this folder and run:
+
+```bash
+. ~/.local/bin/ocr-env.sh        # tesseract + Pillow (already installed here, no root)
+python3 extract_roll.py --out roll.json
+```
+
+The PDFs are image-only scans, so this OCRs all 83 pages — expect a few minutes. The script
+reports, per part, how many records it found and **which serial numbers are missing**, so you
+can see at a glance whether the OCR was clean. Expected: 1,096 for part 235 and 1,018 for 236.
+
+Check a few before trusting it:
+
+```bash
+python3 extract_roll.py --pages 5,6 --sample 10   # quick trial on two pages
+```
+
+Compare those rows against the PDF. OCR on this typeface is good but not perfect — a trailing
+capital `I` can come through as `|`, which the script already corrects. Anything still wrong
+can be hand-edited in `roll.json`.
+
+**EPIC (voter-ID) numbers are deliberately excluded.** A volunteer needs name → serial + part
+to tell someone where to vote; the ID number adds nothing to that and is the most sensitive
+field on the page. `--include-epic` exists but think before using it.
+
+### 2. Import it on each phone
+
+Open the app → **Settings → Voter roll → Import roll.json**. The search switches to the real
+roll immediately, the header stops saying "Demo", and the banner turns green.
+
+Share `roll.json` with volunteers **directly** — WhatsApp, USB, a private transfer. Never post
+it anywhere public.
+
+### What this guarantees
+
+- The roll is stored under its own database key, so **JSON state backups never contain it**
+  (verified: a full backup with a 2,114-record roll loaded is ~1.3 KB and holds no voter data).
+- The roll never reaches the published website; each device holds its own copy.
+- Removing it is one tap: **Settings → Voter roll → Remove roll from this device**.
+- With no roll imported, everything falls back to the fictional demo records.
+
+---
+
 ## 7. Scope and deliberate limits
 
 This app models **aggregate** election statistics only. It does **not** contain, and is not
@@ -180,7 +235,8 @@ built to contain:
 - per-voter tracking of who has or has not voted.
 
 The volunteer search operates on **48 fictional demonstration records** in
-`js/data/demo-voters.js`. They are invented. No real electoral roll is loaded into the app
+`js/data/demo-voters.js` unless a real roll is imported locally (see section 6b). They are
+invented. No real electoral roll is loaded into the app
 in this phase, and the supplied draft-roll PDFs are excluded from version control by
 `.gitignore` because they contain real voter personal data.
 

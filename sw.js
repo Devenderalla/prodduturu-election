@@ -1,11 +1,11 @@
 /* Service worker: cache-first shell so the app opens with no network.
    Bump CACHE on every release so phones pick up new code. */
-var CACHE = 'prodduturu-election-v1.0.4';
+var CACHE = 'prodduturu-election-v1.1.0';
 var ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/styles.css',
   './js/i18n.js', './js/db.js', './js/state.js', './js/charts.js', './js/ui.js',
-  './js/data/demo-voters.js',
+  './js/data/demo-voters.js', './js/roll.js',
   './js/views/dashboard.js', './js/views/search.js', './js/views/turnout.js',
   './js/views/analytics.js', './js/views/results.js', './js/views/expenses.js',
   './js/views/settings.js',

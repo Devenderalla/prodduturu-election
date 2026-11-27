@@ -13,10 +13,15 @@
   var STORE = 'app';
   var KEY = 'state';
   var LS_KEY = 'prodduturu-election-state';
+  /* The voter roll lives under its own key, never inside the app state.
+     That keeps real voter data out of every JSON backup the app exports. */
+  var ROLL_KEY = 'roll';
+  var LS_ROLL_KEY = 'prodduturu-election-roll';
 
   var engine = 'memory';
   var idb = null;
   var memory = null;
+  var memoryRoll = null;
 
   function hasIDB() {
     try { return !!global.indexedDB; } catch (e) { return false; }
@@ -46,26 +51,26 @@
     });
   }
 
-  function idbGet() {
+  function idbGet(key) {
     return new Promise(function (resolve, reject) {
       var tx = idb.transaction(STORE, 'readonly');
-      var req = tx.objectStore(STORE).get(KEY);
+      var req = tx.objectStore(STORE).get(key);
       req.onsuccess = function () { resolve(req.result || null); };
       req.onerror = function () { reject(req.error); };
     });
   }
-  function idbPut(value) {
+  function idbPut(key, value) {
     return new Promise(function (resolve, reject) {
       var tx = idb.transaction(STORE, 'readwrite');
-      tx.objectStore(STORE).put(value, KEY);
+      tx.objectStore(STORE).put(value, key);
       tx.oncomplete = function () { resolve(true); };
       tx.onerror = function () { reject(tx.error); };
     });
   }
-  function idbDel() {
+  function idbDel(key) {
     return new Promise(function (resolve, reject) {
       var tx = idb.transaction(STORE, 'readwrite');
-      tx.objectStore(STORE).delete(KEY);
+      tx.objectStore(STORE).delete(key);
       tx.oncomplete = function () { resolve(true); };
       tx.onerror = function () { reject(tx.error); };
     });
@@ -89,7 +94,7 @@
 
     load: function () {
       if (engine === 'IndexedDB') {
-        return idbGet().catch(function () { return null; });
+        return idbGet(KEY).catch(function () { return null; });
       }
       if (engine === 'localStorage') {
         try {
@@ -103,7 +108,7 @@
     save: function (state) {
       var copy = JSON.parse(JSON.stringify(state));
       if (engine === 'IndexedDB') {
-        return idbPut(copy).catch(function () {
+        return idbPut(KEY, copy).catch(function () {
           // if IDB write fails mid-session, degrade rather than lose the edit
           engine = hasLS() ? 'localStorage' : 'memory';
           return App.db.save(copy);
@@ -122,10 +127,48 @@
       return Promise.resolve(true);
     },
 
+    /* ---- voter roll: separate key, never part of a state backup ---- */
+    loadRoll: function () {
+      if (engine === 'IndexedDB') return idbGet(ROLL_KEY).catch(function () { return null; });
+      if (engine === 'localStorage') {
+        try {
+          var raw = global.localStorage.getItem(LS_ROLL_KEY);
+          return Promise.resolve(raw ? JSON.parse(raw) : null);
+        } catch (e) { return Promise.resolve(null); }
+      }
+      return Promise.resolve(memoryRoll);
+    },
+
+    saveRoll: function (payload) {
+      if (engine === 'IndexedDB') {
+        return idbPut(ROLL_KEY, payload).then(function () { return true; })
+          .catch(function () { memoryRoll = payload; return false; });
+      }
+      if (engine === 'localStorage') {
+        try {
+          global.localStorage.setItem(LS_ROLL_KEY, JSON.stringify(payload));
+          return Promise.resolve(true);
+        } catch (e) {
+          // a full roll can exceed the ~5MB localStorage quota
+          memoryRoll = payload;
+          return Promise.reject(new Error('quota'));
+        }
+      }
+      memoryRoll = payload;
+      return Promise.resolve(true);
+    },
+
+    clearRoll: function () {
+      memoryRoll = null;
+      try { if (hasLS()) global.localStorage.removeItem(LS_ROLL_KEY); } catch (e) {}
+      if (engine === 'IndexedDB') return idbDel(ROLL_KEY).catch(function () { return true; });
+      return Promise.resolve(true);
+    },
+
     clear: function () {
       memory = null;
       try { if (hasLS()) global.localStorage.removeItem(LS_KEY); } catch (e) {}
-      if (engine === 'IndexedDB') return idbDel().catch(function () { return true; });
+      if (engine === 'IndexedDB') return idbDel(KEY).catch(function () { return true; });
       return Promise.resolve(true);
     }
   };

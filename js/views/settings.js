@@ -328,6 +328,33 @@
         + U.esc(t('set.deviceNoteBody')) + '</div></div>'
         + '</div>';
 
+      /* ---- voter roll (local only) ---- */
+      var rollMeta = App.roll.meta();
+      var rollCounts = App.roll.partCounts();
+      html += '<div class="card"><div class="card-head"><h2>' + U.esc(t('set.roll')) + '</h2>'
+        + '<span class="badge ' + (rollMeta ? 'badge-official' : 'badge-demo') + '">'
+        + U.esc(rollMeta ? t('set.rollLoaded', { n: U.fmtInt(rollMeta.count) }) : t('common.notSet')) + '</span></div>';
+      if (rollMeta) {
+        html += '<div class="table-scroll"><table><tbody>'
+          + row(t('common.total'), U.fmtInt(rollMeta.count))
+          + Object.keys(rollCounts).sort().map(function (k) {
+              return row(t('common.part') + ' ' + k, U.fmtInt(rollCounts[k]));
+            }).join('')
+          + row(t('set.rollGenerated'), rollMeta.generatedAt ? U.fmtDateTime(rollMeta.generatedAt) : '—')
+          + '</tbody></table></div>';
+        if (rollMeta.includesEpic) {
+          html += '<div class="notice notice-warn" style="margin-top:10px"><div>' + U.esc(t('set.rollEpicWarn')) + '</div></div>';
+        }
+      } else {
+        html += '<p class="card-sub">' + U.esc(t('set.rollNone')) + '</p>';
+      }
+      html += '<div class="btn-grid" style="margin-top:12px">'
+        + '<button class="btn btn-primary" id="rollImport">' + U.esc(t('set.rollImport')) + '</button>'
+        + '<button class="btn btn-ghost" id="rollClear"' + (rollMeta ? '' : ' disabled') + '>' + U.esc(t('set.rollClear')) + '</button>'
+        + '</div>'
+        + '<div class="notice notice-warn" style="margin-top:12px"><div>' + U.esc(t('set.rollHelp')) + '</div></div>'
+        + '</div>';
+
       /* ---- future phase ---- */
       html += '<div class="card"><div class="card-head"><h2>' + U.esc(t('set.future')) + '</h2>'
         + '<span class="badge badge-future">' + U.esc(t('common.future')) + '</span></div>'
@@ -360,6 +387,31 @@
           onOk: function () {
             App.state.mutate(function (st) { st.settings.adminPin = null; });
             U.toast(t('set.pinRemoved'), 'ok');
+          }
+        });
+      });
+      bind('#rollImport', function () {
+        U.pickFile('.json,application/json').then(function (file) {
+          if (!file) return;
+          var parsed;
+          try { parsed = JSON.parse(file.text); }
+          catch (e) { U.toast(t('set.rollBad'), 'err'); return; }
+          App.roll.set(parsed).then(function (n) {
+            U.toast(t('set.rollDone') + ' (' + U.fmtInt(n) + ')', 'ok');
+            App.router.go('settings');
+          }).catch(function (err) {
+            U.toast(/quota/i.test(err && err.message) ? t('set.rollQuota') : t('set.rollBad'), 'err');
+          });
+        });
+      });
+      bind('#rollClear', function () {
+        U.confirm({
+          title: t('set.rollConfirmClear'), body: t('set.rollHelp'), danger: true, okLabel: t('common.delete'),
+          onOk: function () {
+            App.roll.clear().then(function () {
+              U.toast(t('set.rollRemoved'), 'ok');
+              App.router.go('settings');
+            });
           }
         });
       });
