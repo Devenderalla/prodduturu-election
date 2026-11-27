@@ -231,7 +231,9 @@
     return new Promise(function (resolve) {
       var input = document.createElement('input');
       input.type = 'file';
-      input.accept = accept || '.json,application/json';
+      // '*/*' on purpose for data imports: Android's picker hides .json
+      // behind a strict filter, leaving the file unselectable.
+      input.accept = accept || '*/*';
       input.style.display = 'none';
       document.body.appendChild(input);
       input.addEventListener('change', function () {

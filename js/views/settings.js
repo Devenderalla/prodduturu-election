@@ -204,7 +204,7 @@
 
   function importJson() {
     var U = App.ui, t = U.t;
-    U.pickFile('.json,application/json').then(function (file) {
+    U.pickFile('*/*').then(function (file) {
       if (!file) return;
       var parsed;
       try { parsed = JSON.parse(file.text); }
@@ -391,7 +391,7 @@
         });
       });
       bind('#rollImport', function () {
-        U.pickFile('.json,application/json').then(function (file) {
+        U.pickFile('*/*').then(function (file) {
           if (!file) return;
           var parsed;
           try { parsed = JSON.parse(file.text); }
