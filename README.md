@@ -1,5 +1,10 @@
 # Prodduturu Election Analytics
 
+### ▶ Live: https://devenderalla.github.io/prodduturu-election/
+
+Open on any phone, any network. No sign-in. Add it to the home screen and it keeps
+working with the network off.
+
 Mobile-first, offline-capable election analytics for the **village president (Sarpanch)
 election** in **Prodduturu village, Kankipadu Mandal, Andhra Pradesh**.
 
@@ -49,7 +54,16 @@ Bump `CACHE` in `sw.js` (`prodduturu-election-v1.0.1` → `v1.0.2`), or in DevTo
 
 ---
 
-### Option C — hosted link (open from any network)
+### Option C — the live site (what volunteers use)
+
+**https://devenderalla.github.io/prodduturu-election/** — served by GitHub Pages from
+`main` at the repository root. Push to `main` and the site redeploys in under a minute.
+
+Because the service worker is served too, a phone that has opened the link once keeps
+working offline. After deploying a change, bump `CACHE` in `sw.js` or phones will keep
+serving the previous version from their cache.
+
+### Option D — artifact build (alternative host)
 
 `web/index.html` is a single-page build for hosts that supply their own document
 shell. Regenerate it after any edit to `index.html` or `css/styles.css`:
