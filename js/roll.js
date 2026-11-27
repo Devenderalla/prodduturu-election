@@ -66,6 +66,25 @@
       }).catch(function () { return false; });
     },
 
+    /**
+     * Pick up a roll.json sitting beside the app.
+     *
+     * On the published site this always 404s - the roll is not and will
+     * not be there. It only finds anything when the app is served from a
+     * folder the operator put the file in themselves, which makes working
+     * on a laptop a single step instead of a file-picker dance.
+     */
+    initLocal: function () {
+      if (App.roll.isLoaded()) return Promise.resolve(false);
+      return fetch('roll.json', { cache: 'no-store' }).then(function (res) {
+        if (!res.ok) return false;
+        return res.json().then(function (payload) {
+          if (validate(payload)) return false;
+          return App.roll.set(payload).then(function (n) { return n; });
+        });
+      }).catch(function () { return false; });
+    },
+
     set: function (payload) {
       var err = validate(payload);
       if (err) return Promise.reject(new Error(err));

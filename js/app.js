@@ -178,8 +178,14 @@
     App.db.init().then(function () {
       return App.state.load();
     }).then(function (S) {
-      // the locally imported roll, if this device has one
-      return App.roll.init().then(function () { return S; });
+      // the roll this device already holds, then a roll.json sitting beside
+      // the app (only ever present when serving the folder locally)
+      return App.roll.init()
+        .then(function () { return App.roll.initLocal(); })
+        .then(function (n) {
+          if (n) App.ui.toast(App.i18n.t('dash.rollOk', { n: App.ui.fmtInt(n) }), 'ok');
+          return S;
+        });
     }).then(function (S) {
       App.i18n.set(S.settings.lang || 'en');
       applyTheme(S.settings.theme || 'light');
